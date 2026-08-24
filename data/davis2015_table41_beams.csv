@@ -1,9 +1,0 @@
-# Davis (2015) Table 4.1: Beam specimen properties. 20M bottom flexural bars, 2.0 m span, 3-point bending.
-# NOT a clean statics test: the corroded beams failed by end debonding at the protective sleeves (thesis p.100).
-specimen,current_density_uAcm2,theoretical_mass_loss_pct,barA_actual_mass_loss_pct,barB_actual_mass_loss_pct,mean_mass_loss_pct,ultimate_load_kN
-BS-C,,,,,0.0,156.9
-BL-C,,,,,0.0,151.5
-BS-01,333,0.95,1.3,1.1,1.1,136.1
-BL-01,333,1.20,1.3,1.5,1.4,94.0
-BS-05,285,4.95,4.2,3.9,4.0,108.2
-BL-05,293,5.21,4.0,3.5,3.8,94.7
