@@ -2,10 +2,11 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "Free-Body Statics for Reinforcement Section Loss in Concrete Discontinuity Regions"
 abstract: >-
-  Code, reference fields and digitized test data for recovering the remaining
-  tie reinforcement section of a deteriorating concrete discontinuity region
-  from measured strain. The identifying condition is affine in the section
-  loss, so the recovery is a root rather than the minimizer of an objective.
+  Code and generated reference fields for recovering the remaining tie
+  reinforcement section of a deteriorating concrete discontinuity region from
+  measured strain. The identifying condition is affine in the section loss, so
+  the recovery is a root rather than the minimizer of an objective. Published
+  test data are cited rather than redistributed.
 authors:
   - family-names: Lamsal
     given-names: Sandesh
