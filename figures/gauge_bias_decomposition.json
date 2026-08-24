@@ -1,0 +1,120 @@
+{
+ "what": "does the gauge length move the bias by smearing the along-span gradient or by removing the sawtooth",
+ "gauge_length_mm": 260.0,
+ "n_phase": 24,
+ "cells": "A smooth/point, B smooth/boxcar, C saw/point, D saw/gauge, E saw/gauge+boxcar; all phase means",
+ "rows": [
+  {
+   "theta": 0.1,
+   "s_rm_mm": 235.41400359031266,
+   "A_smooth_point": 0.07410809357321019,
+   "B_smooth_boxcar": 0.07921667577140871,
+   "C_saw_point": -0.18285313659745003,
+   "C_sd": 0.19776862390281308,
+   "C_admissible": 1.0,
+   "D_saw_gauge": 0.07291619972067133,
+   "D_sd": 0.004908765150362586,
+   "D_admissible": 1.0,
+   "E_saw_gauge_boxcar": 0.07915816647407144,
+   "E_sd": 0.0020930437565806815,
+   "E_admissible": 1.0,
+   "gradient_pp": 0.5108582198198528,
+   "sawtooth_pp": 25.57693363181214,
+   "sum_pp": 26.08779185163199,
+   "measured_pp": 26.201130307152148
+  },
+  {
+   "theta": 0.2,
+   "s_rm_mm": 249.6942574874765,
+   "A_smooth_point": 0.15690850718391092,
+   "B_smooth_boxcar": 0.16262624543812823,
+   "C_saw_point": -0.12603598404764574,
+   "C_sd": 0.2235543515896449,
+   "C_admissible": 1.0,
+   "D_saw_gauge": 0.1565315626334359,
+   "D_sd": 0.0025813875851612256,
+   "D_admissible": 1.0,
+   "E_saw_gauge_boxcar": 0.16261381651590973,
+   "E_sd": 0.0011167411592257123,
+   "E_admissible": 1.0,
+   "gradient_pp": 0.5717738254217314,
+   "sawtooth_pp": 28.256754668108165,
+   "sum_pp": 28.828528493529898,
+   "measured_pp": 28.86498005635555
+  },
+  {
+   "theta": 0.3,
+   "s_rm_mm": 266.9343894180146,
+   "A_smooth_point": 0.23845076071889273,
+   "B_smooth_boxcar": 0.24543559204546533,
+   "C_saw_point": -0.07835833294576998,
+   "C_sd": 0.2577300250196951,
+   "C_admissible": 1.0,
+   "D_saw_gauge": 0.23840459867562602,
+   "D_sd": 0.001309394701013996,
+   "D_admissible": 1.0,
+   "E_saw_gauge_boxcar": 0.24543364949246402,
+   "E_sd": 0.0005029288052369533,
+   "E_admissible": 1.0,
+   "gradient_pp": 0.6984831326572599,
+   "sawtooth_pp": 31.6762931621396,
+   "sum_pp": 32.37477629479686,
+   "measured_pp": 32.379198243823396
+  },
+  {
+   "theta": 0.4,
+   "s_rm_mm": 288.32209355099667,
+   "A_smooth_point": 0.3249817719727878,
+   "B_smooth_boxcar": 0.33338247870431825,
+   "C_saw_point": -0.043410697832597635,
+   "C_sd": 0.3079145820298956,
+   "C_admissible": 1.0,
+   "D_saw_gauge": 0.32088431677075896,
+   "D_sd": 0.01284314696325844,
+   "D_admissible": 1.0,
+   "E_saw_gauge_boxcar": 0.3322013905954783,
+   "E_sd": 0.003042779482503551,
+   "E_admissible": 1.0,
+   "gradient_pp": 0.8400706731530427,
+   "sawtooth_pp": 36.429501460335665,
+   "sum_pp": 37.26957213348871,
+   "measured_pp": 37.561208842807595
+  }
+ ],
+ "gradient_pp_range": [
+  0.5108582198198528,
+  0.8400706731530427
+ ],
+ "sawtooth_pp_range": [
+  25.57693363181214,
+  36.429501460335665
+ ],
+ "gradient_share_pct": 2.1043447156014654,
+ "decomposition_closure_pp": 0.29163670931888674,
+ "arm_free_attenuation": [
+  {
+   "spacing_mm": 260.0,
+   "x1": 700.0,
+   "x2": 960.0,
+   "differenced_couple_raw_kNm": 70.21998535700104,
+   "differenced_couple_averaged_kNm": 68.73956591528548,
+   "attenuation_pct": 2.108259399641066
+  },
+  {
+   "spacing_mm": 290.0,
+   "x1": 700.0,
+   "x2": 990.0,
+   "differenced_couple_raw_kNm": 71.80112372247635,
+   "differenced_couple_averaged_kNm": 70.52615637759908,
+   "attenuation_pct": 1.7756927451515025
+  },
+  {
+   "spacing_mm": 450.0,
+   "x1": 700.0,
+   "x2": 1150.0,
+   "differenced_couple_raw_kNm": 57.39852292096353,
+   "differenced_couple_averaged_kNm": 53.82517770672453,
+   "attenuation_pct": 6.225500295816699
+  }
+ ]
+}

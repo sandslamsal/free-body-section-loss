@@ -1,0 +1,58 @@
+{
+  "source": "Davis M., Hoult N.A., Scott A. (2017) Distributed strain sensing to assess corroded RC beams. Engineering Structures 140:473-482. doi:10.1016/j.engstruct.2017.03.013",
+  "provenance": "Green OA accepted manuscript (CC BY-NC-ND), Queen's University Scholaris. All values below are stated in Section 3.1/3.3 text or printed as dimension labels in Figure 1; none are eyeballed off a plot.",
+  "geometry_mm": {
+    "overall_length": 2300,
+    "clear_span": 2000,
+    "height": 300,
+    "width": 200,
+    "effective_depth_d": 250,
+    "top_bar_depth": 50,
+    "shear_span": 1000,
+    "shear_span_to_depth_ratio": 4.0,
+    "load_plate_width": 100,
+    "support_plate_width": 100,
+    "plate_thickness": 20,
+    "support_center_from_beam_end": 150,
+    "external_fiber_depths": [50, 225, 275],
+    "short_sleeve_penetration_into_beam": 100,
+    "long_sleeve_penetration_into_beam": 300,
+    "note_sleeve": "short sleeve stops 50 mm before support centre; long sleeve extends 150 mm past support centre. No corrosion occurred under the sleeves (Sec 3.1)."
+  },
+  "reinforcement": {
+    "bottom": {"n": 2, "designation": "20M", "f_y_MPa": 450,
+               "nominal_area_mm2_each": 300, "nominal_diameter_mm": 19.5,
+               "area_source": "CSA G30.18 nominal for 20M; the paper does NOT state the bar area or diameter"},
+    "top": {"n": 2, "designation": "10M", "f_y_MPa": 440, "nominal_area_mm2_each": 100, "nominal_diameter_mm": 11.3},
+    "stirrups": {"n": 15, "designation": "10M", "f_y_MPa": 440, "spacing_mm": 150, "type": "open"},
+    "E_s_MPa": 200000,
+    "E_s_source": "NOT reported by the source; assumed 200 GPa"
+  },
+  "concrete": {
+    "f_c_MPa": 45,
+    "f_c_note": "average compressive strength at time of testing",
+    "mix_kg_per_m3": {"water": 235, "portland_cement": 518, "coarse_agg_10mm": 1046, "fine_agg": 576, "NaCl": 24},
+    "NaCl_pct_by_weight": 1.0
+  },
+  "loading": {
+    "arrangement": "three-point bending, simply supported, point load at midspan",
+    "span_m": 2.0,
+    "rate_mm_per_min": 0.5,
+    "control": "stroke/displacement control",
+    "M_over_P": 0.5,
+    "fos_readings_at_load_stages_kN": 10
+  },
+  "instrumentation": {
+    "system": "LUNA OBR4600, Rayleigh backscatter",
+    "gauge_length_mm": 20,
+    "accuracy_microstrain": 1,
+    "fibers": "nylon + polyimide bonded to both 20M bottom bars and one top 10M bar with cyanoacrylate (Loctite 4851), epoxy overcoat leaving ~70% of bar circumference exposed to corrode; 3 external nylon fibres on one side face"
+  },
+  "tabulated_strain": "NONE. All strain data appear only as raster plots (Figures 5-10). PDF pages 17-20 contain embedded bitmap images plus caption text; there is no vector or tabulated strain anywhere in the article.",
+  "author_stated_strain_derived_events": {
+    "BS-C_flexural_cracking_kN": 20,
+    "BS-C_yield_onset_kN_approx": 140,
+    "BS-C_yielding_observed_at_midspan_kN": 137,
+    "note": "137 kN is a recorded FOS load stage; 'approximately 140 kN' is the authors' read of the load-deflection knee. Both are author-stated in text, not digitised here."
+  }
+}

@@ -1,0 +1,120 @@
+========================================================================================================
+DAVIS, HOULT & SCOTT (2017)  --  T2 CONSTITUTIVE TEST  (no tabulated strain -> T1 impossible)
+========================================================================================================
+A_s = 600 mm^2 (2 x 20M, CSA nominal)   f_y = 450 MPa   f'_c = 45 MPa   b = 200 mm   d = 250 mm   L = 2.0 m
+
+Lever-arm / effective-stress calibration on the CONTROLS:
+  short sleeve  control P_u =  156.9 kN  ->  sigma_s,eff =  574.8 MPa (= 1.28 f_y)   a =  45.1 mm   jd = 227.5 mm   jd/d = 0.910
+  long  sleeve  control P_u =  151.5 kN  ->  sigma_s,eff =  553.0 MPa (= 1.23 f_y)   a =  43.4 mm   jd = 228.3 mm   jd/d = 0.913
+  at sigma_s = f_y = 450 MPa the section gives M_y -> P_y = 125.5 kN, jd = 232.4 mm
+  -> both controls exceed the yield-based capacity; the calibration is absorbing STRAIN HARDENING
+     (paper: BS-C 'reinforcement yielded at approximately 140 kN' then rose to 156.9 kN).
+
+beam   sleeve theta_wgt   P_meas   P_pred      dP    err% theta_rec   err_pp  amplif
+------------------------------------------------------------------------------------
+BS-C   short       0.0%    156.9    156.9     0.0    0.0%     -0.0%     -0.0   (calib)
+BL-C   long        0.0%    151.5    151.5     0.0    0.0%     -0.0%     -0.0   (calib)
+BS-01  short       1.2%    136.1    155.2    19.1   14.0%     14.5%    +13.3    12.1
+BL-01  long        1.4%     94.0    149.6    55.6   59.1%     40.2%    +38.8    28.7
+BS-05  short       4.0%    108.2    151.2    43.0   39.8%     33.2%    +29.2     8.3
+BL-05  long        3.8%     94.7    146.3    51.6   54.5%     39.8%    +36.0    10.5
+
+Mass loss is gravimetric over the WHOLE bar, but the sleeved ends did not corrode
+(Sec 3.1: 'no corrosion occurred in the bars underneath the sleeves').
+Local section loss over the exposed length is therefore larger:
+  beam    L_corroded  factor theta_avg theta_local  still needed
+  BS-01        2100mm   1.095      1.2%       1.31%         14.5%
+  BL-01        1700mm   1.353      1.4%       1.89%         40.2%
+  BS-05        2100mm   1.095      4.0%       4.38%         33.2%
+  BL-05        1700mm   1.353      3.8%       5.14%         39.8%
+  (factor is a LOWER bound: the bars also protrude past the beam ends under the sleeves)
+
+Could localised pitting explain the gap?  Ratio of the section loss the load DEMANDS
+to the weighed average loss:
+  BS-01  needs  14.5% local loss vs 1.2% weighed  -> x 12.1   [uniform corrosion (Sec 4.1)]
+  BL-01  needs  40.2% local loss vs 1.4% weighed  -> x 28.7   [uniform corrosion (Sec 4.1)]
+  BS-05  needs  33.2% local loss vs 4.0% weighed  -> x  8.3   [distributed + MINOR pitting (Sec 4.1)]
+  BL-05  needs  39.8% local loss vs 3.8% weighed  -> x 10.5   [distributed + MINOR pitting (Sec 4.1)]
+
+========================================================================================================
+THE NON-MONOTONICITY:  BL-01 (1.4%, 94.0 kN) carries LESS than BS-05 (4.0%, 108.2 kN).
+========================================================================================================
+Within each sleeve series the ordering is fine; the reversal is entirely a SLEEVE effect.
+Bonded length available between the end of the sleeve and midspan:
+  short sleeve: L_bond =   1050 mm   bar surface =    128648 mm^2
+  long  sleeve: L_bond =    850 mm   bar surface =    104144 mm^2
+  ACI 318 development length for an uncorroded 20M at f_y=450, f'c=45: l_d = 476 mm
+  -> BOTH configurations develop the bar when uncorroded (l_d << 850 mm), which is why
+     BS-C and BL-C reach essentially the same load (156.9 vs 151.5 kN).
+
+Now invert for the average bond stress each corroded beam actually mobilised,
+u = T_req / (n pi d_b L_bond), with T_req = M_u / jd from the same section model:
+  beam    P_u,kN  M_u,kNm T_req,kN  L_bnd   u,MPa
+  BS-C     156.9     78.5    344.9   1050    2.68  <- lower bound (yielded/hardened, did not fail in bond)
+  BL-C     151.5     75.8    331.8    850    3.19  <- lower bound (yielded/hardened, did not fail in bond)
+  BS-01    136.1     68.0    294.9   1050    2.29
+  BL-01     94.0     47.0    198.3    850    1.90
+  BS-05    108.2     54.1    230.3   1050    1.79
+  BL-05     94.7     47.4    199.8    850    1.92
+
+  mean residual bond stress over the four CORRODED beams: u = 1.98 MPa (spread 1.79 to 2.29, CoV 10%)
+
+  Forward-predict all four corroded capacities from that SINGLE bond stress (geometry only, no theta):
+  beam     P_meas   P_bond    err%   vs  P_sectionloss    err%
+  BS-01     136.1    118.7  -12.8%   vs          155.2   14.0%
+  BL-01      94.0     97.4    3.6%   vs          149.6   59.1%
+  BS-05     108.2    118.7    9.7%   vs          151.2   39.8%
+  BL-05      94.7     97.4    2.8%   vs          146.3   54.5%
+
+========================================================================================================
+PARTIAL T1 (control only, author-stated strain event -- NOT a digitisation)
+========================================================================================================
+Sec 4.3: 'At 137 kN, the reinforcement is yielding at midspan as shown by the large strain
+increase in that region.'  137 kN is a recorded FOS load stage. That is a strain-derived
+statement: eps_s >= eps_y = f_y/E_s = 2250 microstrain, i.e. sigma_s = f_y at the cut.
+  T_req at 137 kN (M = 68.5 kNm, jd = 230.6 mm) = 297.1 kN
+  T(theta) = A_s(1-theta) f_y = 270.0(1-theta) kN
+  bisection root:  theta = -10.0%   against the known theta = 0.0% (BS-C is a control)
+  -> the statics + bilinear-steel chain is off by -10.0 pp with ZERO corrosion and
+     intact bond. That is the model-error floor of the chain on this specimen.
+
+wrote /Users/sandeshlamsal/Desktop/CSFD/Research/P4-ES/data/davis2017_t2_results.csv
+  Reconciliation: theta = 0 is recovered exactly if sigma_s at that load stage is
+  495 MPa = 1.10 f_y.  BS-C was already on the hardening branch
+  (yield knee ~140 kN, load rose to 156.9 kN), so 1.10 f_y is physically ordinary.
+  Read the other way: insisting sigma_s = f_y displaces theta by -10.0 pp.
+
+========================================================================================================
+CONSISTENCY CHECKS
+========================================================================================================
+1. Capacity reduction recomputed from Table 1 vs the paper's own text:
+   BS-01   136.1 /  156.9 ->  13.3% reduction
+   BL-01    94.0 /  151.5 ->  38.0% reduction
+   BS-05   108.2 /  156.9 ->  31.0% reduction
+   BL-05    94.7 /  151.5 ->  37.5% reduction
+   paper Sec 4.2: 13% / 31% (short), 38% / 37% (long)  -> matches Table 1
+   paper Conclusion 3: '13% and 39%' for the short series -> the 39% is an ERROR in the
+   paper (Table 1 and Sec 4.2 both give 31%); Conclusion 3 also says 1.1% where Table 1
+   says 1.2% for BS-01. Use Table 1.
+
+2. Is the flexural free body the right one?  V_max = P/2 = 78.5 kN at the
+   highest load recorded.  Stirrup capacity V_s = A_v f_yv d/s = 147 kN,
+   V_c ~ 0.17 sqrt(f'c) b d = 57 kN, total 204 kN >> 78.5 kN.
+   a/d = 4.0 -> slender B-region flexural member, shear does not govern.
+
+3. Bar-to-bar spread of the weighed mass loss (Table 1), i.e. how well 'theta' is even
+   defined for a two-bar chord:
+   BS-01  bar A 1.3%  bar B 1.1%  mean 1.2%  spread 0.2 pp (17% of the mean)
+   BL-01  bar A 1.3%  bar B 1.5%  mean 1.4%  spread 0.2 pp (14% of the mean)
+   BS-05  bar A 4.2%  bar B 3.9%  mean 4.0%  spread 0.3 pp (8% of the mean)
+   BL-05  bar A 4.0%  bar B 3.5%  mean 3.8%  spread 0.5 pp (13% of the mean)
+
+4. Elasticity of capacity to weighed mass loss, d(P/P0)/d(theta).  The section-loss
+   model predicts 1.0 by construction:
+   BS-01    11.0
+   BL-01    27.1
+   BS-05     7.8
+   BL-05     9.9
+   BL-01 -> BL-05 (1.4% -> 3.8%, 94.0 -> 94.7 kN):  -0.19   <- NEGATIVE: within the long-sleeve series,
+   capacity is flat while mass loss nearly triples. That is the fingerprint of a limit
+   state that does not depend on the bar section.

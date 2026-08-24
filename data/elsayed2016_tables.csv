@@ -1,0 +1,30 @@
+# El-Sayed, Hussain & Shuraim (2016), J Civ Eng Manag 22(4):491-499, doi:10.3846/13923730.2014.897990 (CC BY 4.0)
+# Tables 1, 2 and 3 transcribed verbatim.  "" = not reported ("-" in the source).
+# ad          = shear span to depth ratio a/d                        (Table 1)
+# s_mm        = stirrup spacing in the test span, mm                 (Table 1)
+# target_loss = target stirrup mass loss, %                          (Table 1)
+# wmax/wavg   = max / average corrosion crack width, mm              (Table 2)
+# mass_loss   = AVERAGE ACTUAL stirrup mass loss by ASTM G1-03, %    (Table 2)
+# fc          = concrete cylinder strength, MPa                      (Table 3)
+# P_diag,P_ult= diagonal-cracking and ultimate TOTAL applied load, kN(Table 3)
+# red_pct     = ultimate strength reduction, %                       (Table 3)
+# defl        = midspan deflection at failure, mm                    (Table 3)
+# eps_long    = midspan longitudinal-bar strain at failure, microstrain (Table 3)
+# eps_conc    = midspan top concrete strain at failure, microstrain  (Table 3)
+# eps_stirrup = MAXIMUM stirrup strain, microstrain -- CONTROL BEAMS ONLY (Table 3)
+# mode        = SC shear compression, SR stirrup rupture, DC diagonal crushing
+beam,ad,s_mm,target_loss,wmax,wavg,mass_loss,fc,P_diag,P_ult,red_pct,defl,eps_long,eps_conc,eps_stirrup,mode
+0-200-2,2,200,0,,,,38,189,572,,8.9,1777,-1590,3036,SC
+10-200-2,2,200,10,0.16,0.08,16.5,38,230,529,8,9.5,1685,-1175,,SR
+30-200-2,2,200,30,0.42,0.30,22.2,38,280,535,6,10.8,1757,-1413,,SR
+0-150-2,2,150,0,,,,38,191,610,,10.7,1882,-1475,3411,SC
+10-150-2,2,150,10,0.20,0.14,12.3,38,260,547,10,8.5,1710,-1245,,SR
+30-150-2,2,150,30,0.48,0.32,21.5,38,285,526,14,11.5,1645,-1228,,SR
+0-100-2,2,100,0,,,,38,202,640,,10.1,1956,-1477,3829,SC
+30-100-2,2,100,30,0.52,0.38,23.6,38,277,512,20,9.2,1602,-1297,,SC
+0-150-1,1,150,0,,,,29.4,233,1040,,9.0,1446,-1356,2960,SC
+10-150-1,1,150,10,0.20,0.13,15.8,29.4,310,916,12,8.2,1318,-1208,,SR
+30-150-1,1,150,30,0.30,0.20,20.3,29.4,356,845,19,8.2,1006,-1125,,SR
+0-100-1,1,100,0,,,,29.4,287,1105,,10.4,,-1372,2875,DC
+10-100-1,1,100,10,0.22,0.18,17.8,29.4,394,892,19,7.8,1162,-1227,,DC
+30-100-1,1,100,30,0.40,0.30,24.0,29.4,421,841,24,8.4,1050,-1089,,DC

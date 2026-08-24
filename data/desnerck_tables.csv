@@ -1,0 +1,35 @@
+quantity,specimen,value,unit,source
+failure_load,NS-REF,402.3,kN,2016 Table 5 / 2017 Figure 10 / 2018 Table 5
+failure_load,NS-ND,244.9,kN,2016 Table 5 / 2018 Table 5
+failure_load,NS-NU,295.8,kN,2016 Table 5 / 2018 Table 5
+failure_load,NS-RS,358.7,kN,2016 Table 5 / 2018 Table 5
+failure_load,NS-LR,261.9,kN,2017 Figure 10 / 2018 Table 5
+cracking_load,NS-REF,107.0,kN,2016 Table 5
+cracking_load,NS-ND,102.3,kN,2016 Table 5
+cracking_load,NS-NU,100.5,kN,2016 Table 5
+cracking_load,NS-RS,98.6,kN,2016 Table 5
+deflection_at_peak,NS-REF,10.2,mm,2016 Table 5
+STM_failure_load,NS-REF,336.5,kN,2018 Table 6
+STM_failure_load,NS-LR,187.0,kN,2018 Table 6
+fy_phi10,-,539,MPa,2016 Table 2 / 2017 Table 3 / 2018 Table 3
+fu_phi10,-,596,MPa,2016 Table 2 / 2017 Table 3 / 2018 Table 3
+fy_phi12,-,529,MPa,2016 Table 2 / 2017 Table 3 / 2018 Table 3
+fu_phi12,-,559,MPa,2016 Table 2 / 2017 Table 3 / 2018 Table 3
+fy_phi25,-,578,MPa,2016 Table 2 / 2017 Table 3 / 2018 Table 3
+fu_phi25,-,674,MPa,2016 Table 2 / 2017 Table 3 / 2018 Table 3
+bar_yield_force_phi10,-,42.3,kN,2017 Sec 3.3 text
+bar_yield_force_phi12,-,59.8,kN,2017 Sec 3.3 text
+bar_yield_force_phi25,-,283.7,kN,2017 Sec 3.3 text
+fc_cub_NS,NS-REF and NS-LR,50.8,MPa,2017 Table 2
+Ec_NS,NS-REF and NS-LR,34300,MPa,2017 Table 2
+h,-,700,mm,2018 Sec 4.1
+h_nib,-,325,mm,2018 Sec 4.1
+length,-,3320,mm,2018 Sec 4.1
+thickness,-,400,mm,2018 Sec 4.1
+bearing_from_end_face,-,90,mm,2016 Fig 3 / 2017 Fig 2 dimension chain
+stirrup_positions,-,300;415;535;650;850;1050;1250;1450,mm,2016 Fig 3 dimension chain
+strut_AB_angle,NS-REF,67.6,deg,2018 Sec 5.1
+strut_BC_angle,NS-REF,28.5,deg,2018 Sec 5.1
+STM_Ubar_stress_at_336.5kN,NS-REF,406,MPa,2018 Sec 5.1
+milled_zone_length,NS-LR,100,mm,2017 Sec 2.1.3
+milled_area_fraction,NS-LR,0.50,-,2017 Sec 2.1.3

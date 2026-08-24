@@ -1,0 +1,11 @@
+# Davis, Hoult & Scott (2017), Eng. Struct. 140:473-482, doi:10.1016/j.engstruct.2017.03.013
+# Table 1 - Beam specimen corrosion levels and load carrying capacities (VERBATIM, accepted manuscript p.16)
+# sleeve: S = short protective sleeve (100 mm into beam), L = long protective sleeve (300 mm into beam)
+# mass loss is GRAVIMETRIC (bars weighed before casting and after test, cleaned)
+specimen,sleeve,bar_A_mass_loss_pct,bar_B_mass_loss_pct,avg_mass_loss_pct,ultimate_load_kN
+BS-C,short,,,0.0,156.9
+BL-C,long,,,0.0,151.5
+BS-01,short,1.3,1.1,1.2,136.1
+BL-01,long,1.3,1.5,1.4,94.0
+BS-05,short,4.2,3.9,4.0,108.2
+BL-05,long,4.0,3.5,3.8,94.7

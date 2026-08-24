@@ -1,0 +1,161 @@
+% The specimen and the free body. Panel a fixes the benchmark; panel b is
+% the identifying condition drawn on it, so a reader can check the statics
+% of eq. (reconcile) against the geometry without leaving the figure.
+%
+% Units in the picture are millimetres, scaled by the x/y keys below, so
+% every coordinate here is the physical dimension it labels. The natural
+% width is set close to a text width so that fitting the figure to the line
+% barely rescales it and the labels keep their stated size; annotations are
+% therefore kept inside the two panels rather than trailing off to the right.
+% Font family is set in each style rather than once on the picture, since a
+% style-level font key would otherwise reset it to the document family.
+\begin{tikzpicture}[
+  x=0.00354cm, y=0.00354cm,
+  conc/.style ={fill=black!7,draw=black,line width=0.9pt},
+  band/.style ={fill=csfdBlue!30,draw=csfdBlue!75!black,line width=0.8pt},
+  plate/.style={fill=black!55,draw=black,line width=0.8pt},
+  stir/.style ={draw=black!45,line width=0.6pt,dash pattern=on 3pt off 2.5pt},
+  bar/.style  ={draw=csfdBlue!70!black,line width=1.3pt},
+  dim/.style  ={<->,line width=0.6pt,black!70,
+                {Bar[width=3.5pt]}-{Bar[width=3.5pt]}},
+  dimlab/.style={font=\sffamily\scriptsize,text=black!70,inner sep=2pt},
+  lbl/.style  ={font=\sffamily\footnotesize},
+  hd/.style   ={font=\sffamily\small\bfseries},
+  act/.style  ={->,line width=1.7pt,csfdRed!85!black,
+                -{Triangle[length=2.8mm,width=2.6mm]}},
+  lead/.style ={->,line width=0.6pt,black!55,
+                -{Triangle[length=1.8mm,width=1.7mm]}},
+  cut/.style  ={draw=csfdRed!85!black,line width=1.1pt,
+                dash pattern=on 4pt off 2.5pt},
+]
+
+% =====================================================================
+% panel a -- geometry, reinforcement, loading
+% =====================================================================
+\begin{scope}
+  \node[hd,anchor=west] at (-260,1440) {a\hspace{8pt}benchmark geometry};
+
+  \fill[conc] (0,0) rectangle (2000,1000);
+  \fill[band] (0,0) rectangle (2000,150);
+  \draw[bar] (60,52) -- (1940,52);
+  \draw[bar] (60,100) -- (1940,100);
+  \foreach \sx in {430,610,790,970,1150,1330,1510}
+    {\draw[stir] (\sx,170) -- (\sx,960);}
+
+  % load plate and applied load
+  \fill[plate] (900,1000) rectangle (1100,1055);
+  \draw[act] (1000,1310) -- (1000,1075);
+  \node[lbl,anchor=west,text=csfdRed!85!black] at (1050,1230)
+    {$\lambda P$,\ \ $P=800$~kN};
+
+  % supports: pin left, roller right
+  \fill[plate] (150,-55) rectangle (350,0);
+  \draw[line width=0.9pt] (250,-55) -- (185,-150) -- (315,-150) -- cycle;
+  \draw[line width=0.9pt] (170,-160) -- (330,-160);
+  \fill[plate] (1650,-55) rectangle (1850,0);
+  \draw[line width=0.9pt] (1750,-55) -- (1685,-135) -- (1815,-135) -- cycle;
+  \foreach \cx in {1705,1750,1795}
+    {\draw[line width=0.9pt] (\cx,-152) circle [radius=17];}
+  \draw[line width=0.9pt] (1670,-172) -- (1830,-172);
+
+  % reinforcement, annotated inside the section it describes
+  \node[lbl,anchor=west,text=csfdBlue!45!black,fill=black!7,inner sep=2pt]
+    at (70,265) {tie band, $\rho_x=1.2\,\%$};
+  \draw[lead,csfdBlue!55!black] (200,225) -- (200,165);
+  \node[lbl,anchor=west,text=black!55,fill=black!7,inner sep=2pt]
+    at (740,660) {stirrups, $\rho_y=0.15\,\%$};
+  \draw[lead] (730,660) -- (625,660);
+
+  % dimensions
+  % each label sits beside its own line, so none masks what is behind it
+  \draw[dim] (0,-400) -- (2000,-400);
+  \node[dimlab,anchor=north] at (1000,-410) {2000};
+  \draw[dim] (250,-300) -- (1750,-300);
+  \node[dimlab,anchor=south] at (1000,-292) {1500};
+  \draw[dim] (0,-205) -- (250,-205);
+  \node[dimlab,anchor=east] at (-14,-205) {250};
+  \draw[dim] (-255,0) -- (-255,1000);
+  \node[dimlab,rotate=90,anchor=south] at (-266,500) {1000};
+  \draw[dim] (-110,0) -- (-110,150);
+  \node[dimlab,anchor=east] at (-124,75) {150};
+
+  \node[lbl,anchor=north west,align=left,text=black!75] at (-260,-500)
+    {$f_c=30$~MPa,\ \ $f_y=500$~MPa,\ \ thickness $t=300$~mm\\[2pt]
+     $200$~mm bearing plates, mesh floor $0.10\,\%$ elsewhere};
+  \node[dimlab,anchor=west,text=black!55] at (2055,-400)
+    {all dimensions in mm};
+\end{scope}
+
+% =====================================================================
+% panel b -- the free body that identifies theta
+% =====================================================================
+\begin{scope}[shift={(2620,0)}]
+  \node[hd,anchor=west] at (-260,1440)
+    {b\hspace{8pt}free body and identifying condition};
+
+  % retained portion, and the discarded remainder in outline only
+  \fill[conc] (0,0) rectangle (700,1000);
+  \fill[band] (0,0) rectangle (700,150);
+  \draw[black!35,line width=0.8pt,dash pattern=on 3pt off 3pt]
+    (700,0) rectangle (2000,1000);
+
+  \draw[cut] (700,-40) -- (700,1130);
+  \node[lbl,text=csfdRed!85!black,anchor=south] at (700,1140)
+    {cut at $x_c$};
+
+  % the instrumented band
+  \foreach \gx in {70,150,230,310,390,470,550,630}
+    {\draw[csfdBlue!80!black,line width=1.2pt] (\gx,20) -- (\gx,130);}
+  \node[lbl,text=csfdBlue!45!black,anchor=west,align=left] at (55,480)
+    {strain\\measured\\along the tie};
+  \draw[lead,csfdBlue!55!black] (215,320) -- (215,165);
+
+  % support plate, its centre, and the true reaction centroid
+  \fill[plate] (150,-55) rectangle (350,0);
+  \draw[black!45,line width=0.7pt,dash pattern=on 2.5pt off 2.5pt]
+    (250,-55) -- (250,-176);
+  \draw[black!45,line width=0.7pt,dash pattern=on 2.5pt off 2.5pt]
+    (350,-55) -- (350,-176);
+  \draw[act] (355,-150) -- (355,-66);
+  \node[lbl,text=csfdRed!85!black,anchor=west] at (470,-105)
+    {$R = \lambda P/2$, at the centroid of the reaction};
+  % the centroid falls at the plate edge once the bearing is modelled as
+  % compression-only, and beyond it if the support may carry tension
+
+  % tractions on the cut: tension in the band, compression above
+  \foreach \ty in {35,75,115}
+    {\draw[->,line width=1.3pt,csfdBlue!75!black,
+      -{Triangle[length=2.3mm,width=2.1mm]}] (700,\ty) -- (900,\ty);}
+  \foreach \cy/\len in {540/180,640/215,740/250,840/285}
+    {\draw[<-,line width=1.3pt,black!70,
+      {Triangle[length=2.3mm,width=2.1mm]}-] (700,\cy) -- ({700+\len},\cy);}
+  \node[lbl,text=csfdBlue!45!black,anchor=west] at (700,205)
+    {$\sigma_x>0$};
+  \node[lbl,text=black!60,anchor=west] at (700,935)
+    {$\sigma_x<0$: concrete};
+
+  % where the reaction acts, and the arm it gives
+  \draw[dim] (250,-176) -- (355,-176);
+  \node[dimlab,anchor=north] at (310,-190) {100 to 120};
+  \draw[dim] (355,-300) -- (700,-300);
+  \node[dimlab,anchor=north] at (535,-314) {$x_c-a$};
+
+  % the condition itself
+  \node[anchor=north west,align=center,
+        rectangle,rounded corners=3pt,draw=csfdRed!80!black,
+        line width=0.9pt,fill=csfdRed!5,inner sep=7pt,
+        font=\sffamily\scriptsize]
+    at (1035,880)
+    {%
+      \begin{tabular}{@{}c@{}}
+        \textbf{\textcolor{csfdRed!80!black}{identifying condition}}\\[6pt]
+        $\displaystyle
+          \underbrace{\int_{\mathrm{cut}}
+            \sigma_x\bigl(\bm\varepsilon;\rho_x(\theta)\bigr)\,(y-y_0)\,t\,
+            \mathrm{d}y}_{\textstyle\text{measured strain, unknown }\theta}
+          \;=\;
+          \underbrace{R\,(x_c-a)}_{\textstyle\text{statics}}$\\[2pt]
+      \end{tabular}};
+\end{scope}
+
+\end{tikzpicture}

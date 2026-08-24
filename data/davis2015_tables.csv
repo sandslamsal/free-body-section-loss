@@ -1,0 +1,24 @@
+# Davis (2015) MASc thesis, Queen's University. Transcribed VERBATIM from the thesis tables.
+# Source: https://queensu.scholaris.ca/server/api/core/bitstreams/e77ac03e-4ce1-46f3-9989-8276c2255efb/content
+# Bars: 15M deformed, nominal A_s = 200 mm^2 (confirmed: thesis' own 493.3 MPa for R-01 = 97.8 kN / (200*0.991))
+# E_s = 191 GPa (thesis p.19, from rebar tensile tests). Thesis "theoretical yield load" uses f_y = 400 MPa nominal.
+# Prism: 100 x 100 x 900 mm concrete, f'c(28d) = 33.6 MPa, 6 mm smooth transverse bars, 1% NaCl in mix.
+table,specimen,set,current_density_uAcm2,theoretical_mass_loss_pct,actual_mass_loss_pct,expected_yield_load_kN,actual_yield_load_kN,notes
+3.1,R1-C,bare,,,0.0,80,86.0,control
+3.1,R2-C,bare,,,0.0,80,89.5,control
+3.1,R-01,bare,375,1.0,0.9,79.2,97.8,uniform distributed corrosion
+3.1,R-05,bare,344,5.0,5.1,76.0,87.3,uniform distributed corrosion
+3.1,R-10,bare,627,10.0,10.1,72.0,76.0,corrosion progressed under coating on half the bar
+3.1,R-15,bare,750,15.1,15.4,67.9,66.0,uniform distributed corrosion
+3.2,C1-C,rc,,,0.0,80,85.1,control (from Ch.2 as C15-1)
+3.2,C2-C,rc,,,0.0,80,95.4,control (from Ch.2 as C15-2)
+3.2,C3-C,rc,,,0.0,80,89.5,control (from Ch.2 as C15-3)
+3.2,C4-C,rc,,,0.0,80,88.2,control (from Ch.2 as C15-4)
+3.2,C1-CR,rc,500,1.6,0.9,78.7,92.0,corroded to cover cracking; pitting
+3.2,C2-CR,rc,500,0.8,0.6,79.4,86.5,corroded to cover cracking; pitting
+3.2,C3-CR,rc,500,0.8,0.5,79.4,89.0,corroded to cover cracking; pitting
+3.2,C1-05,rc,446,5.0,6.1,76.0,79.0,pitting corrosion
+3.2,C2-05,rc,422,4.5,7.1,76.4,72.0,pitting corrosion
+3.2,C3-05,rc,516,5.1,3.4,76.0,76.5,pitting corrosion
+3.2,C1-10,rc,203,10.0,12.3,72.0,68.8,pitting corrosion
+3.2,C2-10,rc,202,10.0,13.0,72.0,59.5,pitting corrosion; >30% capacity drop

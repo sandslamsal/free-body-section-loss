@@ -1,0 +1,328 @@
+{
+  "convention": {
+    "arm_error_mm": "assumed arm minus true arm; +100 mm is the plate centre in place of the contact centroid",
+    "bias": "theta_hat offset = -0.0025 per mm of arm error (0.25 pp/mm, Section 7); a too-long arm understates the loss",
+    "reading": "0.830*0.20 - 0.005 - 0.0025*arm_error, clipped to [0, 0.7]",
+    "theta_true": 0.2,
+    "arm_sensitivity_pp_per_mm": 0.25,
+    "modes": {
+      "naive": "likelihood centred on theta as if the reading were unbiased",
+      "calibrated": "slope and intercept removed; the arm bias is the part calibration cannot remove"
+    }
+  },
+  "mc": {
+    "n_mc": 10000000,
+    "seed": 20260821,
+    "common_random_numbers": true
+  },
+  "zero_arm_error_check": {
+    "tolerance": 0.01,
+    "max_abs_dbeta": 0.0,
+    "passed": true,
+    "cases": {
+      "prior": {
+        "beta_stored": 3.810296900693468,
+        "beta_reproduced": 3.810296900693468,
+        "abs_diff": 0.0
+      },
+      "posterior_calibrated": {
+        "beta_stored": 3.944999935768402,
+        "beta_reproduced": 3.944999935768402,
+        "abs_diff": 0.0
+      },
+      "posterior_naive": {
+        "beta_stored": 4.020803383018032,
+        "beta_reproduced": 4.020803383018032,
+        "abs_diff": 0.0
+      },
+      "point_true_0.20": {
+        "beta_stored": 3.939651673057639,
+        "beta_reproduced": 3.939651673057639,
+        "abs_diff": 0.0
+      },
+      "point_reading_0.16": {
+        "beta_stored": 4.023252090226378,
+        "beta_reproduced": 4.023252090226378,
+        "abs_diff": 0.0
+      }
+    }
+  },
+  "reference": {
+    "pf": 4.02e-05,
+    "beta": 3.943204621856505,
+    "published_pf": 3.99e-05,
+    "published_beta": 3.944999935768402,
+    "note": "calibrated posterior at zero arm error, reading 0.830*0.20 - 0.005 = 0.161; the published table used the rounded reading 0.160"
+  },
+  "sweep": [
+    {
+      "arm_error_mm": 0.0,
+      "bias_pp": -0.0,
+      "reading_raw": 0.161,
+      "reading": 0.161,
+      "reading_clipped": false,
+      "naive": {
+        "posterior_mean": 0.1590337972308905,
+        "posterior_sd": 0.02367200494548992,
+        "pf_mc": 2.91e-05,
+        "se_pf_mc": 1.7058473903019577e-06,
+        "beta_mc": 4.019992476498694,
+        "se_beta_mc": 0.013810304275413781,
+        "beta_form": 4.022878889814875,
+        "pf_understatement_factor": 1.3814432989690721,
+        "dbeta_vs_ref": 0.07678785464218896
+      },
+      "calibrated": {
+        "posterior_mean": 0.19311742974595386,
+        "posterior_sd": 0.02880791756315496,
+        "pf_mc": 4.02e-05,
+        "se_pf_mc": 2.0049534647966273e-06,
+        "beta_mc": 3.943204621856505,
+        "se_beta_mc": 0.011956026370511949,
+        "beta_form": 3.936290028699005,
+        "pf_understatement_factor": 1.0,
+        "dbeta_vs_ref": 0.0
+      }
+    },
+    {
+      "arm_error_mm": 10.0,
+      "bias_pp": -2.5,
+      "reading_raw": 0.136,
+      "reading": 0.136,
+      "reading_clipped": false,
+      "naive": {
+        "posterior_mean": 0.13721706263634834,
+        "posterior_sd": 0.022983859720220674,
+        "pf_mc": 2.28e-05,
+        "se_pf_mc": 1.5099496733335188e-06,
+        "beta_mc": 4.077104510358678,
+        "se_beta_mc": 0.015404353584649321,
+        "beta_form": 4.075668685076636,
+        "pf_understatement_factor": 1.7631578947368423,
+        "dbeta_vs_ref": 0.13389988850217316
+      },
+      "calibrated": {
+        "posterior_mean": 0.16621890327177755,
+        "posterior_sd": 0.028062181894287275,
+        "pf_mc": 3.14e-05,
+        "se_pf_mc": 1.7719766939776607e-06,
+        "beta_mc": 4.002035022232166,
+        "se_beta_mc": 0.013348728188412734,
+        "beta_form": 4.002772457785054,
+        "pf_understatement_factor": 1.2802547770700639,
+        "dbeta_vs_ref": 0.05883040037566056
+      }
+    },
+    {
+      "arm_error_mm": 20.0,
+      "bias_pp": -5.0,
+      "reading_raw": 0.111,
+      "reading": 0.111,
+      "reading_clipped": false,
+      "naive": {
+        "posterior_mean": 0.11695172335815146,
+        "posterior_sd": 0.021974413333777178,
+        "pf_mc": 1.91e-05,
+        "se_pf_mc": 1.3820142976829148e-06,
+        "beta_mc": 4.118105391159541,
+        "se_beta_mc": 0.016678514454928028,
+        "beta_form": 4.124248869390697,
+        "pf_understatement_factor": 2.1047120418848166,
+        "dbeta_vs_ref": 0.174900769303036
+      },
+      "calibrated": {
+        "posterior_mean": 0.1410692027816983,
+        "posterior_sd": 0.02689815322113013,
+        "pf_mc": 2.43e-05,
+        "se_pf_mc": 1.558826786721347e-06,
+        "beta_mc": 4.062259536353952,
+        "se_beta_mc": 0.014970670740919729,
+        "beta_form": 4.064193728899468,
+        "pf_understatement_factor": 1.654320987654321,
+        "dbeta_vs_ref": 0.11905491449744732
+      }
+    },
+    {
+      "arm_error_mm": 50.0,
+      "bias_pp": -12.5,
+      "reading_raw": 0.036000000000000004,
+      "reading": 0.036000000000000004,
+      "reading_clipped": false,
+      "naive": {
+        "posterior_mean": 0.07018338477979004,
+        "posterior_sd": 0.016994840724095815,
+        "pf_mc": 1.14e-05,
+        "se_pf_mc": 1.0677017392511826e-06,
+        "beta_mc": 4.235543064625131,
+        "se_beta_mc": 0.02104376278646045,
+        "beta_form": 4.235111823594975,
+        "pf_understatement_factor": 3.5263157894736845,
+        "dbeta_vs_ref": 0.29233844276862575
+      },
+      "calibrated": {
+        "posterior_mean": 0.08294696934411998,
+        "posterior_sd": 0.020745811400319,
+        "pf_mc": 1.36e-05,
+        "se_pf_mc": 1.1661824488475206e-06,
+        "beta_mc": 4.1957250936109975,
+        "se_beta_mc": 0.019433013267811758,
+        "beta_form": 4.204170853862433,
+        "pf_understatement_factor": 2.9558823529411766,
+        "dbeta_vs_ref": 0.25252047175449244
+      }
+    },
+    {
+      "arm_error_mm": 100.0,
+      "bias_pp": -25.0,
+      "reading_raw": -0.089,
+      "reading": 0.0,
+      "reading_clipped": true,
+      "naive": {
+        "posterior_mean": 0.05608161884092811,
+        "posterior_sd": 0.014295016912111956,
+        "pf_mc": 1.04e-05,
+        "se_pf_mc": 1.0197985997244752e-06,
+        "beta_mc": 4.256125479360206,
+        "se_beta_mc": 0.021935151882491528,
+        "beta_form": 4.268224915293492,
+        "pf_understatement_factor": 3.8653846153846154,
+        "dbeta_vs_ref": 0.3129208575037006
+      },
+      "calibrated": {
+        "posterior_mean": 0.06560372658511814,
+        "posterior_sd": 0.017349362962168,
+        "pf_mc": 1.13e-05,
+        "se_pf_mc": 1.0630085752241136e-06,
+        "beta_mc": 4.237522278898647,
+        "se_beta_mc": 0.021127678384406694,
+        "beta_form": 4.245456714366146,
+        "pf_understatement_factor": 3.5575221238938055,
+        "dbeta_vs_ref": 0.2943176570421415
+      }
+    },
+    {
+      "arm_error_mm": -10.0,
+      "bias_pp": 2.5,
+      "reading_raw": 0.186,
+      "reading": 0.186,
+      "reading_clipped": false,
+      "naive": {
+        "posterior_mean": 0.18189318023963352,
+        "posterior_sd": 0.024106541316295613,
+        "pf_mc": 3.52e-05,
+        "se_pf_mc": 1.876133283111837e-06,
+        "beta_mc": 3.9749298623415363,
+        "se_beta_mc": 0.012685122549536947,
+        "beta_form": 3.966934374401681,
+        "pf_understatement_factor": 1.1420454545454546,
+        "dbeta_vs_ref": 0.031725240485031225
+      },
+      "calibrated": {
+        "posterior_mean": 0.2211550238532656,
+        "posterior_sd": 0.029273066343580068,
+        "pf_mc": 5.44e-05,
+        "se_pf_mc": 2.3323173163186866e-06,
+        "beta_mc": 3.870079204265056,
+        "se_beta_mc": 0.010452091558882652,
+        "beta_form": 3.8659470545971453,
+        "pf_understatement_factor": 0.7389705882352942,
+        "dbeta_vs_ref": -0.07312541759144908
+      }
+    },
+    {
+      "arm_error_mm": -20.0,
+      "bias_pp": 5.0,
+      "reading_raw": 0.21100000000000002,
+      "reading": 0.21100000000000002,
+      "reading_clipped": false,
+      "naive": {
+        "posterior_mean": 0.20543825670198385,
+        "posterior_sd": 0.02439864092866364,
+        "pf_mc": 4.52e-05,
+        "se_pf_mc": 2.1259811137448986e-06,
+        "beta_mc": 3.9150112304162734,
+        "se_beta_mc": 0.011348358611884985,
+        "beta_form": 3.9085320872019333,
+        "pf_understatement_factor": 0.8893805309734514,
+        "dbeta_vs_ref": -0.028193391440231697
+      },
+      "calibrated": {
+        "posterior_mean": 0.2499111158215563,
+        "posterior_sd": 0.029572886772856837,
+        "pf_mc": 7.66e-05,
+        "se_pf_mc": 2.767564496809424e-06,
+        "beta_mc": 3.785824129357507,
+        "se_beta_mc": 0.00898344207865807,
+        "beta_form": 3.7925398415149365,
+        "pf_understatement_factor": 0.5248041775456919,
+        "dbeta_vs_ref": -0.15738049249899833
+      }
+    },
+    {
+      "arm_error_mm": -50.0,
+      "bias_pp": 12.5,
+      "reading_raw": 0.28600000000000003,
+      "reading": 0.28600000000000003,
+      "reading_clipped": false,
+      "naive": {
+        "posterior_mean": 0.278283006264089,
+        "posterior_sd": 0.024825982468870113,
+        "pf_mc": 0.0001005,
+        "se_pf_mc": 3.1700141916086114e-06,
+        "beta_mc": 3.7177563314172524,
+        "se_beta_mc": 0.007970724474398153,
+        "beta_form": 3.7221928677125202,
+        "pf_understatement_factor": 0.4,
+        "dbeta_vs_ref": -0.22544829043925274
+      },
+      "calibrated": {
+        "posterior_mean": 0.3382477611028992,
+        "posterior_sd": 0.029989412578227386,
+        "pf_mc": 0.0001895,
+        "se_pf_mc": 4.352747290505159e-06,
+        "beta_mc": 3.554290728865586,
+        "se_beta_mc": 0.006040469578188693,
+        "beta_form": 3.55788476304471,
+        "pf_understatement_factor": 0.21213720316622692,
+        "dbeta_vs_ref": -0.38891389299091905
+      }
+    },
+    {
+      "arm_error_mm": -100.0,
+      "bias_pp": 25.0,
+      "reading_raw": 0.41100000000000003,
+      "reading": 0.41100000000000003,
+      "reading_clipped": false,
+      "naive": {
+        "posterior_mean": 0.40217457454217087,
+        "posterior_sd": 0.024884915049415424,
+        "pf_mc": 0.0003639,
+        "se_pf_mc": 6.031314755424393e-06,
+        "beta_mc": 3.37888668451117,
+        "se_beta_mc": 0.004556641733732207,
+        "beta_form": 3.3822223453509115,
+        "pf_understatement_factor": 0.11046990931574609,
+        "dbeta_vs_ref": -0.5643179373453351
+      },
+      "calibrated": {
+        "posterior_mean": 0.4885240589143962,
+        "posterior_sd": 0.029902924686974454,
+        "pf_mc": 0.0009269,
+        "se_pf_mc": 9.623101664172524e-06,
+        "beta_mc": 3.1127069366512967,
+        "se_beta_mc": 0.00306430908159887,
+        "beta_form": 3.120136257284467,
+        "pf_understatement_factor": 0.043370374366166795,
+        "dbeta_vs_ref": -0.8304976852052084
+      }
+    }
+  ],
+  "headline": {
+    "understatement_factor_at_10mm": 1.2802547770700639,
+    "understatement_factor_at_20mm": 1.654320987654321,
+    "understatement_factor_at_50mm": 2.9558823529411766,
+    "understatement_factor_at_100mm": 3.5575221238938055,
+    "factor_bought_by_20mm_vs_100mm": 2.150442477876106,
+    "sentence": "Carried through the reliability chain, the 100 mm by which the plate centre misses the contact centroid understates the annual failure probability by a factor of 3.6 (beta 4.24 in place of 3.94), whereas an arm known to 20 mm understates it by no more than a factor of 1.7 (beta 4.06); instrumenting the bearing to 20 mm therefore buys a factor of 2.2 on the annual failure probability the assessment reports."
+  }
+}

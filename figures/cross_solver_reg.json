@@ -1,0 +1,448 @@
+{
+ "what": "cross-model identification against the crack-band regularised fixed-crack generator",
+ "gc": "Gc = 250 Gf = 32.5 N/mm (RTD 1016; Nakamura-Higai 2001 gives 48 N/mm, same order)",
+ "unregularised_baseline_40x20": {
+  "slope": 0.7697,
+  "intercept": -0.2779
+ },
+ "same_solver_baseline": {
+  "slope": 0.8317,
+  "intercept": -0.0092
+ },
+ "capacity_station": {
+  "40x20": [
+   1.5301309363973257,
+   1.448285294563645,
+   1.3713556802963143,
+   1.2817308706504003,
+   1.218781855380553
+  ],
+  "60x30": [
+   1.4172290213119372,
+   1.606791419328551,
+   1.2761351684366908,
+   1.1903724822707564,
+   1.1183036930599468
+  ],
+  "80x40": [
+   1.5539534590766122,
+   1.4754766610231702,
+   1.378590991996796,
+   1.2878353488415646,
+   1.2105820778428624
+  ]
+ },
+ "capacity_peak": {
+  "40x20": [
+   1.5301309363973257,
+   1.451148440641105,
+   1.3844657228357231,
+   1.2959349366644288,
+   1.218781855380553
+  ],
+  "60x30": [
+   1.4948158654649601,
+   1.606791419328551,
+   1.2804822797861062,
+   1.2570454433994886,
+   1.1189870434571159
+  ],
+  "80x40": [
+   1.5549406542051705,
+   1.4774640396530012,
+   1.3800284289151947,
+   1.3396035198987573,
+   1.2238594269337948
+  ]
+ },
+ "families": [
+  {
+   "name": "regularised model: fixed crack, Q4 40x20",
+   "rows": [
+    {
+     "band_eps_at_cut": 0.002228248020996443,
+     "band_eps_over_yield": 0.8912992083985771,
+     "theta_true": 0.0,
+     "lam": 1.5301309363973257,
+     "M_req_kNm": 201.977283604447,
+     "theta_rec": null,
+     "err_pp": null,
+     "theta_rec_wide": -0.2909328299000487,
+     "err_pp_wide": -29.09328299000487,
+     "arm_own_mm": 369.8715921382915,
+     "theta_rec_own_arm": -0.291442434436395,
+     "err_pp_own_arm": -29.1442434436395,
+     "T_intact_kN": 244.42974657177666,
+     "z_mm": 642.7572031477581,
+     "couple_intact_kNm": 157.1089802725905,
+     "moment_headroom": 0.777854704592786
+    },
+    {
+     "band_eps_at_cut": 0.0021891075318875696,
+     "band_eps_over_yield": 0.8756430127550279,
+     "theta_true": 0.1,
+     "lam": 1.448285294563645,
+     "M_req_kNm": 191.17365888240116,
+     "theta_rec": null,
+     "err_pp": null,
+     "theta_rec_wide": -0.2297283373457624,
+     "err_pp_wide": -32.97283373457624,
+     "arm_own_mm": 375.53973085155855,
+     "theta_rec_own_arm": -0.2087608823554074,
+     "err_pp_own_arm": -30.876088235540745,
+     "T_intact_kN": 240.95150625895621,
+     "z_mm": 647.4821704962216,
+     "couple_intact_kNm": 156.0118042568829,
+     "moment_headroom": 0.8160737476539706
+    },
+    {
+     "band_eps_at_cut": 0.0019967035113141883,
+     "band_eps_over_yield": 0.7986814045256753,
+     "theta_true": 0.2,
+     "lam": 1.3713556802963143,
+     "M_req_kNm": 181.01894979911347,
+     "theta_rec": null,
+     "err_pp": null,
+     "theta_rec_wide": -0.2691196703433638,
+     "err_pp_wide": -46.911967034336385,
+     "arm_own_mm": 380.958797163323,
+     "theta_rec_own_arm": -0.22640748371055305,
+     "err_pp_own_arm": -42.6407483710553,
+     "T_intact_kN": 219.26053753216664,
+     "z_mm": 652.8427912553758,
+     "couple_intact_kNm": 143.14266133465375,
+     "moment_headroom": 0.7907606440845387
+    },
+    {
+     "band_eps_at_cut": 0.00224891908098409,
+     "band_eps_over_yield": 0.8995676323936359,
+     "theta_true": 0.3,
+     "lam": 1.2817308706504003,
+     "M_req_kNm": 169.18847492585283,
+     "theta_rec": null,
+     "err_pp": null,
+     "theta_rec_wide": -0.0682620452958434,
+     "err_pp_wide": -36.82620452958434,
+     "arm_own_mm": 388.1232815575375,
+     "theta_rec_own_arm": -0.009163893336370759,
+     "err_pp_own_arm": -30.916389333637074,
+     "T_intact_kN": 237.00764685640442,
+     "z_mm": 668.5692357390097,
+     "couple_intact_kNm": 158.4560213230874,
+     "moment_headroom": 0.9365651022773925
+    },
+    {
+     "band_eps_at_cut": 0.002224945048233695,
+     "band_eps_over_yield": 0.8899780192934781,
+     "theta_true": 0.4,
+     "lam": 1.218781855380553,
+     "M_req_kNm": 160.879204910233,
+     "theta_rec": null,
+     "err_pp": null,
+     "theta_rec_wide": -0.007147377811949384,
+     "err_pp_wide": -40.71473778119494,
+     "arm_own_mm": 393.6752517533772,
+     "theta_rec_own_arm": 0.0653888069172126,
+     "err_pp_own_arm": -33.46111930827874,
+     "T_intact_kN": 234.533200593306,
+     "z_mm": 681.1057490901542,
+     "couple_intact_kNm": 159.74191127661507,
+     "moment_headroom": 0.9929307604780089
+    }
+   ],
+   "affine_wide": {
+    "slope": 0.7290371962261173,
+    "intercept": -0.31884549138461693
+   },
+   "n_admissible": 0,
+   "n_states": 5,
+   "err_range_pp": null,
+   "err_range_pp_wide": [
+    -46.911967034336385,
+    -29.09328299000487
+   ],
+   "err_range_pp_own_arm": [
+    -42.6407483710553,
+    -29.1442434436395
+   ],
+   "mean_abs_err_pp_wide": 37.303805213939356
+  },
+  {
+   "name": "regularised model: fixed crack, Q4 80x40",
+   "rows": [
+    {
+     "band_eps_at_cut": 0.0017878519488936885,
+     "band_eps_over_yield": 0.7151407795574753,
+     "theta_true": 0.0,
+     "lam": 1.5539534590766122,
+     "M_req_kNm": 205.12185659811283,
+     "theta_rec": null,
+     "err_pp": null,
+     "theta_rec_wide": -0.5730992362150491,
+     "err_pp_wide": -57.30992362150491,
+     "arm_own_mm": 352.66427932527273,
+     "theta_rec_own_arm": -0.6565632712538323,
+     "err_pp_own_arm": -65.65632712538323,
+     "T_intact_kN": 196.04860648708774,
+     "z_mm": 668.8768372686177,
+     "couple_intact_kNm": 131.13237185800307,
+     "moment_headroom": 0.6392900982508439
+    },
+    {
+     "band_eps_at_cut": 0.0017276140820591537,
+     "band_eps_over_yield": 0.6910456328236615,
+     "theta_true": 0.1,
+     "lam": 1.4754766610231702,
+     "M_req_kNm": 194.76291925505848,
+     "theta_rec": null,
+     "err_pp": null,
+     "theta_rec_wide": -0.5450429361951863,
+     "err_pp_wide": -64.50429361951862,
+     "arm_own_mm": 357.50166849185416,
+     "theta_rec_own_arm": -0.6043041836403754,
+     "err_pp_own_arm": -70.43041836403754,
+     "T_intact_kN": 190.24163943383567,
+     "z_mm": 667.1521826912528,
+     "couple_intact_kNm": 126.92012498704578,
+     "moment_headroom": 0.6516647289560965
+    },
+    {
+     "band_eps_at_cut": 0.0017472363945357412,
+     "band_eps_over_yield": 0.6988945578142964,
+     "theta_true": 0.2,
+     "lam": 1.378590991996796,
+     "M_req_kNm": 181.97401094357704,
+     "theta_rec": null,
+     "err_pp": null,
+     "theta_rec_wide": -0.4586704211171958,
+     "err_pp_wide": -65.86704211171958,
+     "arm_own_mm": 363.002141275111,
+     "theta_rec_own_arm": -0.48968050814932246,
+     "err_pp_own_arm": -68.96805081493224,
+     "T_intact_kN": 189.04286314429555,
+     "z_mm": 660.6821244037518,
+     "couple_intact_kNm": 124.8972404255409,
+     "moment_headroom": 0.6863465820087167
+    },
+    {
+     "band_eps_at_cut": 0.0014339520404290445,
+     "band_eps_over_yield": 0.5735808161716178,
+     "theta_true": 0.3,
+     "lam": 1.2878353488415646,
+     "M_req_kNm": 169.9942660470865,
+     "theta_rec": null,
+     "err_pp": null,
+     "theta_rec_wide": -0.6494311822685125,
+     "err_pp_wide": -94.94311822685124,
+     "arm_own_mm": 368.6207904743312,
+     "theta_rec_own_arm": -0.6564032625927185,
+     "err_pp_own_arm": -95.64032625927186,
+     "T_intact_kN": 157.7438195536161,
+     "z_mm": 658.1273022755361,
+     "couple_intact_kNm": 103.81551441346032,
+     "moment_headroom": 0.610700094935582
+    },
+    {
+     "band_eps_at_cut": 0.001315668769763946,
+     "band_eps_over_yield": 0.5262675079055784,
+     "theta_true": 0.4,
+     "lam": 1.2105820778428624,
+     "M_req_kNm": 159.79683427525785,
+     "theta_rec": null,
+     "err_pp": null,
+     "theta_rec_wide": -0.6585788820046757,
+     "err_pp_wide": -105.85788820046757,
+     "arm_own_mm": 372.5643899332352,
+     "theta_rec_own_arm": -0.6455381915944002,
+     "err_pp_own_arm": -104.55381915944002,
+     "T_intact_kN": 144.85658749213118,
+     "z_mm": 670.2195476742036,
+     "couple_intact_kNm": 97.08571654660486,
+     "moment_headroom": 0.6075571959039562
+    }
+   ],
+   "affine_wide": {
+    "slope": -0.27534753765257935,
+    "intercept": -0.521895024029608
+   },
+   "n_admissible": 0,
+   "n_states": 5,
+   "err_range_pp": null,
+   "err_range_pp_wide": [
+    -105.85788820046757,
+    -57.30992362150491
+   ],
+   "err_range_pp_own_arm": [
+    -104.55381915944002,
+    -65.65632712538323
+   ],
+   "mean_abs_err_pp_wide": 77.69645315601238
+  }
+ ],
+ "field_checks": {
+  "40x20": [
+   {
+    "theta": 0.0,
+    "M_closure": 0.9557384404970553,
+    "V_closure": 0.9824335163349622,
+    "N_cut_kN": 2.7019415294672107,
+    "global_closure": 0.9993788614908574,
+    "x_reaction_mm": 369.8715921382915,
+    "peak_lam": 1.5301309363973257,
+    "peak_delta_mm": 3.5000000000000004,
+    "lam_over_peak": 1.0,
+    "post_peak": false,
+    "unconverged_steps": [
+     205,
+     560
+    ]
+   },
+   {
+    "theta": 0.1,
+    "M_closure": 0.9606234578763365,
+    "V_closure": 0.9854723036478241,
+    "N_cut_kN": 5.151452507744227,
+    "global_closure": 0.9999217975127455,
+    "x_reaction_mm": 375.53973085155855,
+    "peak_lam": 1.451148440641105,
+    "peak_delta_mm": 2.8687500000000004,
+    "lam_over_peak": 0.9980269791860886,
+    "post_peak": true,
+    "unconverged_steps": [
+     142,
+     560
+    ]
+   },
+   {
+    "theta": 0.2,
+    "M_closure": 0.9517674596312524,
+    "V_closure": 0.9888118228633366,
+    "N_cut_kN": -2.4385603931276965,
+    "global_closure": 0.999908594251928,
+    "x_reaction_mm": 380.958797163323,
+    "peak_lam": 1.3844657228357231,
+    "peak_delta_mm": 3.4125,
+    "lam_over_peak": 0.9905306124065273,
+    "post_peak": true,
+    "unconverged_steps": [
+     62,
+     560
+    ]
+   },
+   {
+    "theta": 0.3,
+    "M_closure": 0.9679552562260874,
+    "V_closure": 1.0098029870552063,
+    "N_cut_kN": -8.169748120103383,
+    "global_closure": 0.9996460626020438,
+    "x_reaction_mm": 388.1232815575375,
+    "peak_lam": 1.2959349366644288,
+    "peak_delta_mm": 3.48125,
+    "lam_over_peak": 0.9890395222690824,
+    "post_peak": false,
+    "unconverged_steps": [
+     45,
+     560
+    ]
+   },
+   {
+    "theta": 0.4,
+    "M_closure": 0.9526938300333129,
+    "V_closure": 1.0306478955921818,
+    "N_cut_kN": -19.879554095755104,
+    "global_closure": 0.9958640580879583,
+    "x_reaction_mm": 393.6752517533772,
+    "peak_lam": 1.218781855380553,
+    "peak_delta_mm": 3.5000000000000004,
+    "lam_over_peak": 1.0,
+    "post_peak": false,
+    "unconverged_steps": [
+     36,
+     560
+    ]
+   }
+  ],
+  "80x40": [
+   {
+    "theta": 0.0,
+    "M_closure": 0.9517211116227895,
+    "V_closure": 1.0027145272911087,
+    "N_cut_kN": -14.941229986919545,
+    "global_closure": 0.9986230331469813,
+    "x_reaction_mm": 352.66427932527273,
+    "peak_lam": 1.5549406542051705,
+    "peak_delta_mm": 3.4937500000000004,
+    "lam_over_peak": 0.9993651235975544,
+    "post_peak": false,
+    "unconverged_steps": [
+     38,
+     560
+    ]
+   },
+   {
+    "theta": 0.1,
+    "M_closure": 0.9494383628566877,
+    "V_closure": 0.9997168712154808,
+    "N_cut_kN": -11.88332983679149,
+    "global_closure": 0.9985275989381172,
+    "x_reaction_mm": 357.50166849185416,
+    "peak_lam": 1.4774640396530012,
+    "peak_delta_mm": 3.475,
+    "lam_over_peak": 0.9986548717420576,
+    "post_peak": false,
+    "unconverged_steps": [
+     116,
+     560
+    ]
+   },
+   {
+    "theta": 0.2,
+    "M_closure": 0.9514288563508692,
+    "V_closure": 0.9935792140802839,
+    "N_cut_kN": -16.901979393390956,
+    "global_closure": 0.9995412603701876,
+    "x_reaction_mm": 363.002141275111,
+    "peak_lam": 1.3800284289151947,
+    "peak_delta_mm": 3.4937500000000004,
+    "lam_over_peak": 0.998958400502279,
+    "post_peak": false,
+    "unconverged_steps": [
+     32,
+     560
+    ]
+   },
+   {
+    "theta": 0.3,
+    "M_closure": 0.9399437894621866,
+    "V_closure": 1.0019237183097627,
+    "N_cut_kN": -16.425218634658368,
+    "global_closure": 0.9967577959702524,
+    "x_reaction_mm": 368.6207904743312,
+    "peak_lam": 1.3396035198987573,
+    "peak_delta_mm": 2.4937500000000004,
+    "lam_over_peak": 0.9613556023941284,
+    "post_peak": true,
+    "unconverged_steps": [
+     147,
+     560
+    ]
+   },
+   {
+    "theta": 0.4,
+    "M_closure": 0.9355994213048199,
+    "V_closure": 0.9962759244472753,
+    "N_cut_kN": -14.680724703341836,
+    "global_closure": 0.9981388853620011,
+    "x_reaction_mm": 372.5643899332352,
+    "peak_lam": 1.2238594269337948,
+    "peak_delta_mm": 3.1125000000000003,
+    "lam_over_peak": 0.9891512466229909,
+    "post_peak": true,
+    "unconverged_steps": [
+     34,
+     560
+    ]
+   }
+  ]
+ }
+}

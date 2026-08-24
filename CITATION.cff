@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Free-Body Statics for Reinforcement Section Loss in Concrete Discontinuity Regions"
+abstract: >-
+  Code, reference fields and digitized test data for recovering the remaining
+  tie reinforcement section of a deteriorating concrete discontinuity region
+  from measured strain. The identifying condition is affine in the section
+  loss, so the recovery is a root rather than the minimizer of an objective.
+authors:
+  - family-names: Lamsal
+    given-names: Sandesh
+    orcid: "https://orcid.org/0009-0007-9267-4019"
+    email: sandeshlamsal@miami.edu
+  - family-names: Bhandari
+    given-names: Rubi
+    orcid: "https://orcid.org/0009-0005-3650-4619"
+version: "1.0.0"
+date-released: "2026-08-24"
+license: MIT
+keywords:
+  - structural health monitoring
+  - reinforced concrete
+  - discontinuity regions
+  - corrosion
+  - stress fields
+  - inverse problems

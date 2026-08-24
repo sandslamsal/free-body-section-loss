@@ -1,0 +1,726 @@
+"""What a bonded fiber actually returns, and what the sawtooth costs.
+
+Every recovery in this study is driven by a band strain taken from the
+reference field, which is a smeared quantity: one strain per element, the
+mean over whatever cracking that element contains. Bonded distributed
+fiber-optic sensing does not return that. A fiber glued along a tie bar in
+cracked concrete returns a sawtooth, peaking at each crack where the bar
+carries the whole chord force and dipping between cracks where bond has
+handed part of that force back to the concrete. Section 8.2 of the
+manuscript recommends exactly that instrument and has never been shown what
+it returns, so a referee who works with distributed fiber will ask about
+this first.
+
+There is a reason to expect the method to survive. Its observable is not a
+gauge reading but an integral of stress over the tie band, and an integral
+is the natural way to average a periodic disturbance away. If that is what
+happens it is a second and independent argument for the observable the
+manuscript chooses, so it is worth measuring rather than asserting. Three
+things decide the answer and all three are measured here.
+
+Whether the strip that stands for the cut is long enough to complete a
+crack spacing, because an integral taken over a fraction of a period
+averages nothing. Whether the answer moves when the cracks move relative to
+the gauge stations, which is the question an owner faces on site, since
+nobody chooses where the cracks form. And whether the finite gauge length
+of the fiber, which averages over its own footprint before a reading is
+issued, closes whatever gap the first two leave open.
+
+The sawtooth is built on top of the stored band strain so that its mean
+over one crack spacing is exactly the strain the identification would
+otherwise have been given. Nothing is added to or taken from the mean; the
+only new content is the shape. That isolates the question asked here, which
+is what the sampling of a periodic field costs, from the separate question
+of what tension stiffening does to the mean, which tcm.py already answers.
+
+Two things are reported for every case, because one of them alone would
+mislead. The root is taken on a grid that extends well outside the
+admissible interval, so that a spread can be quoted from every phase rather
+than from the phases that happened to survive; and the fraction of phases
+whose root is admissible at all is reported beside it, because a violated
+existence condition is the outcome a deployment actually meets.
+
+Run:  python sawtooth.py     (writes figures/sawtooth.json, sawtooth.png)
+"""
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import numpy as np
+import torch
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parent / "oracle"))
+
+import figdata as FD                                                      # noqa: E402
+import figstyle as F                                                      # noqa: E402
+import tcm                                                                # noqa: E402
+from csfm_constitutive import steel_stress                                # noqa: E402
+from problem import DeepBeam                                              # noqa: E402
+from recover_utils import bracket_root, element_strains                   # noqa: E402
+
+FIELDS = HERE.parent / "oracle" / "fields_theta.npz"
+OUT_JSON = HERE.parent / "figures" / "sawtooth.json"
+OUT_PNG = HERE.parent / "figures" / "sawtooth.png"
+
+DELTA = "3.5"               # the state the manuscript quotes the recovery at
+ARM = 370.0                 # the assumed reaction arm, as everywhere here
+THETA_MAX = 0.70            # the admissible range of the parametrization
+N_PHASE = 97                # phases per crack spacing, endpoint excluded
+N_QUAD = 129                # quadrature points across one gauge footprint
+TRUTH = (0.10, 0.20, 0.30, 0.40)
+
+# The admissible grid is the manuscript's own, so that "no admissible root"
+# here means exactly what it means there. The extended grid exists only so
+# that a spread can be quoted without censoring: the identifying function is
+# affine to within two per cent of its range, so a coarse grid with the
+# two-point bracket resolves the root to better than 1e-7.
+GRID_ADM = np.linspace(0.0, THETA_MAX, 71)
+GRID_EXT = np.linspace(-3.0, 1.5, 91)
+
+# Gauge lengths in mm. The point gauge is the limit a Rayleigh interrogator
+# approaches; 5 and 10 mm bracket what commercial distributed systems
+# deliver; the rest run out so that a trend can be read rather than guessed.
+GAUGES_MM = (0.0, 5.0, 10.0, 25.0, 50.0, 100.0)
+
+# Gauge lengths as multiples of the crack spacing of the state, which is the
+# scale the physics actually sets. A gauge of exactly one spacing returns
+# the stored mean strain by construction, so this sweep locates the length
+# at which the disturbance disappears instead of assuming one.
+GAUGES_REL = (0.25, 0.5, 1.0, 2.0)
+
+
+# ----------------------------------------------------------------------
+# 1. the sawtooth
+# ----------------------------------------------------------------------
+def bar_strain(sig, mat):
+    """Strain of a bare bar at stress sig, the inverse of `steel_stress`.
+
+    The fiber is bonded to the bar, so what it reads at a station is the
+    bar strain there, and the bar strain is fixed by the bar stress alone.
+    Above yield the bilinear law is nearly flat, so a small change of
+    stress is a large change of strain: that asymmetry is the whole reason
+    the synthesised sawtooth is a spike and not a ripple.
+    """
+    esh = (mat.ft - mat.fy) / (mat.eps_u - mat.eps_y)
+    sig = np.asarray(sig, float)
+    return np.where(sig <= mat.fy, sig / mat.Es,
+                    mat.eps_y + (sig - mat.fy) / esh)
+
+
+def sig_profile(sig_sr, xi, phi, mat, f_ct):
+    """Bar stress at distance xi from the nearest crack, in MPa.
+
+    Marti, Alvarez, Kaufmann and Sigrist (1998), the same stepped bond law
+    tcm.py already implements: the stress falls away from its crack value
+    at 4 tau_b1 / phi per unit length while the bar is yielded and at
+    4 tau_b0 / phi once it has dropped back below yield, with
+    tau_b0 = 2 f_ct and tau_b1 = f_ct. The profile is clipped at zero,
+    which binds only in a chord loaded far below cracking.
+    """
+    a = 4.0 * tcm.TAU_B1 * f_ct / phi          # yielded-branch gradient
+    b = 4.0 * tcm.TAU_B0 * f_ct / phi          # elastic-branch gradient
+    sig_sr = np.asarray(sig_sr, float)
+    xi = np.abs(np.asarray(xi, float))
+    xy = np.clip(sig_sr - mat.fy, 0.0, None) / a     # length of yielded bar
+    head = np.minimum(sig_sr, mat.fy)
+    sig = np.where(xi < xy, sig_sr - a * xi, head - b * (xi - xy))
+    return np.clip(sig, 0.0, None)
+
+
+def spacing(theta, prob, f_ct, lam_s=tcm.LAM_S, phi0=tcm.PHI_0):
+    """Stabilised crack spacing and bar diameter of a deteriorated tie.
+
+    theta thins the steel and the bar together, rho = rho_tie (1 - theta)
+    and phi = phi0 sqrt(1 - theta), so the spacing s_rm = lam_s phi / (4 rho)
+    grows as 1 / sqrt(1 - theta): a corroded tie cracks further apart, which
+    makes the sampling problem worse rather than better.
+    """
+    phi = phi0 * np.sqrt(max(1.0 - float(theta), 1e-6))
+    rho = prob.rho_tie * (1.0 - float(theta))
+    return float(tcm.crack_spacing(phi, rho, f_ct, lam_s)), phi
+
+
+def offsets(x, phase, s_r, gauge, n_quad=N_QUAD):
+    """Distance from the nearest crack for every quadrature point of a gauge.
+
+    Cracks sit at `phase` plus integer multiples of the spacing, so the
+    distance is the station coordinate folded into half a spacing. A finite
+    gauge is carried as its own quadrature axis rather than as a smoothed
+    copy of the profile, because the profile has a corner at every crack
+    and at every yield front and a convolution performed on an already
+    sampled curve would round those corners twice.
+    """
+    x = np.asarray(x, float)[:, None]
+    if gauge > 0.0:
+        x = x + np.linspace(-0.5, 0.5, n_quad)[None, :] * gauge
+    u = (x - phase) / s_r
+    return np.abs(u - np.round(u)) * s_r
+
+
+def fiber_reading(cx, cy, ex, theta_true, phase, gauge, prob, f_ct,
+                  lam_s=tcm.LAM_S, bar_row_only=False):
+    """Band strain a bonded fiber returns, in place of the smeared strain.
+
+    Only the tie band is touched and only the axial component: the fiber is
+    on the tie bar and reads strain along it, so eps_y and gamma_xy keep
+    their stored values, exactly as Section 8.2 of the manuscript describes
+    the instrument. The crack spacing is the one the deteriorated tie
+    actually has, so theta enters here as the true state of the structure
+    and never as a trial value.
+
+    `bar_row_only` restricts the disturbance to the elements nearest the
+    soffit, where the bar is. It bounds how much of the effect rests on the
+    assumption that the whole 150 mm band reads the bar's sawtooth.
+    """
+    mat = prob.mat
+    s_r, phi = spacing(theta_true, prob, f_ct, lam_s)
+
+    inb = cy < FD.BAND
+    if bar_row_only:
+        inb = inb & (cy < FD.BAND / 3.0)
+    eps_m = np.clip(ex[inb], 0.0, None)
+    sig_sr = tcm.stress_at_crack(eps_m, s_r, phi, mat, f_ct)
+    xi = offsets(cx[inb], phase, s_r, gauge)
+    eps = bar_strain(sig_profile(sig_sr[:, None], xi, phi, mat, f_ct), mat)
+
+    out = ex.copy()
+    out[inb] = eps.mean(axis=1)
+    return out, s_r
+
+
+# ----------------------------------------------------------------------
+# 2. the identification, unchanged, driven by that reading
+# ----------------------------------------------------------------------
+def roots(prob, area, cx, cy, ex, ey, gxy, lam):
+    """Admissible root, uncensored root, and the existence margin.
+
+    The admissible root is the number the method would report. The
+    uncensored root is the same equation solved on a grid that reaches well
+    outside the parametrization, and it exists to give a spread that is not
+    a survivor average. The margin is T(0) - T_req in kN: positive means an
+    intact tie can still supply what statics demands, negative means the
+    existence condition of the manuscript is violated from above.
+    """
+    M_req = lam * prob.P / 2.0 * (FD.X_CUT - ARM) / 1e6
+
+    def couple(q):
+        return FD.band_couple(prob, cx, cy, ex, ey, gxy, area, q)
+
+    f_adm = np.array([couple(q)[2] - M_req for q in GRID_ADM])
+    f_ext = np.array([couple(q)[2] - M_req for q in GRID_EXT])
+    T0, z0, C0 = couple(0.0)
+    return (bracket_root(f_adm, GRID_ADM), bracket_root(f_ext, GRID_EXT),
+            (C0 - M_req) * 1e3 / z0, T0)
+
+
+def phase_sweep(prob, area, st, lam, theta_true, gauge, f_ct, s_r,
+                n_phase=N_PHASE, lam_s=tcm.LAM_S, bar_row_only=False):
+    """The identification as the crack pattern slides past the stations.
+
+    The phase is swept over a whole spacing with the endpoint excluded,
+    because phase zero and phase s_r are the same crack pattern and
+    including both would weight it twice in every mean and every spread.
+    """
+    cx, cy, ex, ey, gxy = st
+    ph = np.linspace(0.0, s_r, n_phase, endpoint=False)
+    adm = np.full(ph.size, np.nan)
+    ext = np.full(ph.size, np.nan)
+    marg = np.full(ph.size, np.nan)
+    for i, p in enumerate(ph):
+        e2, _ = fiber_reading(cx, cy, ex, theta_true, FD.X_CUT + float(p),
+                              gauge, prob, f_ct, lam_s, bar_row_only)
+        adm[i], ext[i], marg[i], _ = roots(prob, area, cx, cy, e2, ey, gxy,
+                                           lam)
+    return ph, adm, ext, marg
+
+
+def summarize(ph, adm, ext, marg, base):
+    """The five numbers each case is reported by, and nothing hidden."""
+    return dict(
+        phase_mm=[float(v) for v in ph],
+        theta_admissible=[None if not np.isfinite(v) else float(v)
+                          for v in adm],
+        theta_uncensored=[float(v) for v in ext],
+        margin_kN=[float(v) for v in marg],
+        admissible_fraction=float(np.isfinite(adm).mean()),
+        mean=float(np.mean(ext)), std=float(np.std(ext)),
+        lo=float(np.min(ext)), hi=float(np.max(ext)),
+        bias_pp=100.0 * (float(np.mean(ext)) - base),
+        range_pp=100.0 * float(np.max(ext) - np.min(ext)),
+        std_pp=100.0 * float(np.std(ext)))
+
+
+# ----------------------------------------------------------------------
+# 3. checks the synthesis has to pass before any number is read from it
+# ----------------------------------------------------------------------
+def selftest(prob, f_ct) -> dict:
+    """Three properties, without which the experiment measures nothing.
+
+    The mean of the synthesised profile over one crack spacing must be the
+    stored strain, or the sawtooth would be moving the mean and the measured
+    error would be a mixture of two effects. The profile must fall
+    monotonically away from the crack, which is what the bond law says. And
+    a gauge exactly one crack spacing long must hand the stored strain back,
+    which is the same statement read through the averaging path the gauge
+    sweep uses.
+    """
+    mat = prob.mat
+    s_r, phi = spacing(0.0, prob, f_ct)
+    probe = np.array([5.0e-4, 1.5e-3, 2.5e-3, 5.0e-3, 8.0e-3, 1.5e-2])
+    sig_sr = tcm.stress_at_crack(probe, s_r, phi, mat, f_ct)
+
+    xi = np.linspace(0.0, 0.5 * s_r, 400001)
+    e = bar_strain(sig_profile(sig_sr[:, None], xi[None, :], phi, mat, f_ct),
+                   mat)
+    mean_err = float(np.abs(e.mean(axis=1) / probe - 1.0).max())
+    mono = bool(np.all(np.diff(e, axis=1) <= 1e-14))
+
+    xi_g = offsets(np.array([0.0]), 0.0, s_r, s_r, 200001)
+    eg = bar_strain(sig_profile(sig_sr[:, None], xi_g, phi, mat, f_ct), mat)
+    gauge_err = float(np.abs(eg.mean(axis=1) / probe - 1.0).max())
+
+    print(f"  self test: period mean off the stored strain by {mean_err:.2e} "
+          f"relative; profile monotone away from the crack {mono}; "
+          f"a one-spacing gauge hands it back to {gauge_err:.2e}")
+    assert mono and mean_err < 5e-5 and gauge_err < 5e-5
+    return dict(period_mean_rel_error=mean_err, profile_monotone=mono,
+                one_spacing_gauge_rel_error=gauge_err)
+
+
+# ----------------------------------------------------------------------
+def main() -> None:
+    d = np.load(FIELDS)
+    prob = DeepBeam()
+    mat = prob.mat
+    area = (prob.L / FD.NX) * (prob.H / FD.NY) / 2.0
+    f_ct = tcm.f_ctm(mat.fc)
+    out: dict = {}
+
+    print("What a bonded fiber returns, and what it costs the identification")
+    print("=" * 74)
+    out["selftest"] = selftest(prob, f_ct)
+    out["constants"] = dict(
+        f_ct_MPa=f_ct, tau_b0_MPa=tcm.TAU_B0 * f_ct,
+        tau_b1_MPa=tcm.TAU_B1 * f_ct, phi0_mm=tcm.PHI_0, lam_s=tcm.LAM_S,
+        delta_mm=float(DELTA), arm_mm=ARM, n_phase=N_PHASE,
+        gauges_mm=list(GAUGES_MM), gauges_rel=list(GAUGES_REL),
+        eps_yield=mat.eps_y,
+        bond_source="Marti, Alvarez, Kaufmann and Sigrist (1998), SEI 8(4), "
+                    "287-298: tau_b0 = 2 f_ct elastic, tau_b1 = f_ct yielded",
+        spacing_source="same source, s_r,max = phi / (4 rho) under the "
+                       "stepped bond, s_rm = lam_s s_r,max, lam_s = 0.67 "
+                       "mid-range of the admissible [0.5, 1.0]",
+        f_ct_source="EN 1992-1-1 Table 3.1, f_ctm = 0.30 f_ck^(2/3)")
+
+    # ---- the gauge stations, which decide everything below ------------
+    cx0, cy0, _, _, _ = element_strains(d["xy"], d[f"u_0.20_{DELTA}"],
+                                        FD.NX, FD.NY)
+    sel = (np.abs(cx0 - FD.X_CUT) < FD.BAND_W) & (cy0 < FD.BAND)
+    xs = np.unique(np.round(cx0[sel], 4))
+    out["stations"] = dict(n_band_elements=int(sel.sum()),
+                           x_mm=[float(v) for v in xs],
+                           span_mm=float(xs.max() - xs.min()),
+                           strip_mm=2.0 * FD.BAND_W)
+    print(f"\n  the cut is a {2*FD.BAND_W:.0f} mm strip carrying "
+          f"{sel.sum()} band elements at {len(xs)} stations spanning "
+          f"{xs.max()-xs.min():.1f} mm, {xs.min():.1f} to {xs.max():.1f}")
+
+    # ---- 1. the crack pattern adopted at each state -------------------
+    print("\n1. crack spacing adopted, Marti et al. (1998) at lam_s = 0.67")
+    print("   theta   phi (mm)   s_rm (mm)   strip/s_rm   span/s_rm"
+          "   sig_sr (MPa)   peak/mean")
+    states, pattern = {}, {}
+    for th in TRUTH:
+        k = f"u_{th:.2f}_{DELTA}"
+        lam = float(d[f"lam_{th:.2f}_{DELTA}"][0])
+        st = element_strains(d["xy"], d[k], FD.NX, FD.NY)
+        states[th] = (st, lam)
+        cx, cy, ex, _, _ = st
+        s_r, phi = spacing(th, prob, f_ct)
+        inc = (np.abs(cx - FD.X_CUT) < FD.BAND_W) & (cy < FD.BAND)
+        em = float(ex[inc].mean())
+        ssr = float(tcm.stress_at_crack(np.array([em]), s_r, phi, mat,
+                                        f_ct)[0])
+        xi = np.linspace(0.0, 0.5 * s_r, 20001)
+        ep = bar_strain(sig_profile(ssr, xi, phi, mat, f_ct), mat)
+        pattern[th] = dict(
+            phi_mm=phi, s_rm_mm=s_r, lam_kN=lam,
+            strip_over_spacing=2.0 * FD.BAND_W / s_r,
+            station_span_over_spacing=float(xs.max() - xs.min()) / s_r,
+            eps_mean=em, sig_sr_MPa=ssr, eps_peak=float(ep.max()),
+            eps_trough=float(ep.min()), peak_over_mean=float(ep.max() / em),
+            yielded_at_mean=bool(em > mat.eps_y))
+        print(f"   {th:.2f}    {phi:6.2f}     {s_r:7.1f}      "
+              f"{2*FD.BAND_W/s_r:6.3f}      "
+              f"{(xs.max()-xs.min())/s_r:6.3f}      {ssr:7.1f}        "
+              f"{ep.max()/em:5.2f}")
+    out["pattern"] = {f"{k:.2f}": v for k, v in pattern.items()}
+
+    # ---- 2. what an integral of stress can and cannot remove ----------
+    # The observable integrates STRESS over the band, so a strip long
+    # enough to complete a crack spacing returns the mean of sigma_s over
+    # the profile. The smooth field instead hands the identification the
+    # mean STRAIN and applies the constitutive map afterwards. Past yield
+    # the map is nearly flat, so the two differ, and the difference is a
+    # bias no amount of spatial integration can reach.
+    print("\n2. averaging in stress space against averaging in strain space")
+    print("   theta   sigma_s(mean eps)   mean sigma_s   gap (MPa)   gap (%)"
+          "   implied d.theta")
+    gap = {}
+    for th in TRUTH:
+        p = pattern[th]
+        xi = np.linspace(0.0, 0.5 * p["s_rm_mm"], 200001)
+        ep = bar_strain(sig_profile(p["sig_sr_MPa"], xi, p["phi_mm"], mat,
+                                    f_ct), mat)
+        dense = float(steel_stress(torch.tensor(ep), mat).numpy().mean())
+        smooth = float(steel_stress(torch.tensor([p["eps_mean"]]), mat)[0])
+        A_s = prob.rho_tie * FD.BAND * prob.t          # mm2 at theta = 0
+        dT = A_s * (dense - smooth) / 1e3              # kN
+        gap[th] = dict(sigma_s_at_mean_strain_MPa=smooth,
+                       mean_sigma_s_MPa=dense, gap_MPa=dense - smooth,
+                       gap_pct=100.0 * (dense - smooth) / smooth,
+                       dT_kN=dT, implied_dtheta=-dT / 271.5457)
+        print(f"   {th:.2f}       {smooth:7.1f}          {dense:7.1f}     "
+              f"{dense-smooth:7.1f}     {100*(dense-smooth)/smooth:6.1f}"
+              f"      {-dT/271.5457:+.3f}")
+    out["stress_vs_strain_averaging"] = {f"{k:.2f}": v for k, v in gap.items()}
+
+    # ---- 3. the baseline, recomputed rather than pasted in ------------
+    base = {}
+    for th in TRUTH:
+        (st, lam) = states[th]
+        base[th] = roots(prob, area, *st, lam)[0]
+    out["baseline"] = {f"{k:.2f}": float(v) for k, v in base.items()}
+    print("\n3. smooth-field baseline recomputed: "
+          + "  ".join(f"{base[t]:.4f}" for t in TRUTH))
+
+    # ---- 4. the fiber reading, phase by phase, gauge by gauge --------
+    print("\n4. the fiber reading, swept over a full crack spacing")
+    print("   cells are mean +- std / range in pp (admissible fraction);\n"
+          "   the statistics are over EVERY phase, on the extended grid, so "
+          "they are not\n   survivor averages, while the fraction says how "
+          "often a root exists at all")
+    sweeps: dict = {}
+    keep_curves = {}
+    for g in GAUGES_MM:
+        row = {}
+        for th in TRUTH:
+            (st, lam) = states[th]
+            s_r = pattern[th]["s_rm_mm"]
+            ph, adm, ext, marg = phase_sweep(prob, area, st, lam, th, g,
+                                             f_ct, s_r)
+            row[th] = summarize(ph, adm, ext, marg, base[th])
+            if g == 0.0:
+                keep_curves[th] = (ph / s_r, ext, adm)
+        sweeps[f"{g:.1f} mm"] = row
+        cells = "  ".join(
+            f"{row[t]['mean']:+.3f}+-{row[t]['std']:.3f}"
+            f"/{row[t]['range_pp']:.0f}({row[t]['admissible_fraction']:.2f})"
+            for t in TRUTH)
+        print(f"   gauge {g:6.1f} mm : {cells}", flush=True)
+
+    for gr in GAUGES_REL:
+        row = {}
+        for th in TRUTH:
+            (st, lam) = states[th]
+            s_r = pattern[th]["s_rm_mm"]
+            ph, adm, ext, marg = phase_sweep(prob, area, st, lam, th,
+                                             gr * s_r, f_ct, s_r)
+            row[th] = summarize(ph, adm, ext, marg, base[th])
+            row[th]["gauge_mm"] = gr * s_r
+        sweeps[f"{gr:.2f} s_rm"] = row
+        cells = "  ".join(
+            f"{row[t]['mean']:+.3f}+-{row[t]['std']:.3f}"
+            f"/{row[t]['range_pp']:.0f}({row[t]['admissible_fraction']:.2f})"
+            for t in TRUTH)
+        print(f"   gauge {gr:5.2f} s_rm: {cells}", flush=True)
+    out["sweep"] = {g: {f"{t:.2f}": v for t, v in r.items()}
+                    for g, r in sweeps.items()}
+
+    # ---- 5. the two phases an analyst can identify on site ------------
+    # A crack sitting on the cut and a cut sitting midway between cracks
+    # are the two states a site engineer can recognize by eye, so they are
+    # reported separately from the blind average over phase.
+    print("\n5. the two phases that can be identified on site, point gauge")
+    named = {}
+    for th in TRUTH:
+        (st, lam) = states[th]
+        cx, cy, ex, ey, gxy = st
+        s_r = pattern[th]["s_rm_mm"]
+        row = {}
+        for name, p in (("crack_on_cut", FD.X_CUT),
+                        ("cut_midway", FD.X_CUT + 0.5 * s_r)):
+            e2, _ = fiber_reading(cx, cy, ex, th, p, 0.0, prob, f_ct)
+            a, e, m, T0 = roots(prob, area, cx, cy, e2, ey, gxy, lam)
+            row[name] = dict(
+                theta_admissible=None if not np.isfinite(a) else float(a),
+                theta_uncensored=float(e), margin_kN=float(m), T0_kN=float(T0),
+                bias_pp=100.0 * (float(e) - base[th]))
+        named[th] = row
+        c, w = row["crack_on_cut"], row["cut_midway"]
+        print(f"   theta {th:.2f}: crack on the cut "
+              f"{c['theta_uncensored']:+.4f} ({c['bias_pp']:+.1f} pp, "
+              f"margin {c['margin_kN']:+.0f} kN); midway "
+              f"{w['theta_uncensored']:+.4f} ({w['bias_pp']:+.1f} pp, "
+              f"margin {w['margin_kN']:+.0f} kN)")
+    out["named_phases"] = {f"{k:.2f}": v for k, v in named.items()}
+
+    # ---- 6. does the answer survive the spacing being uncertain? ------
+    # s_rm is admissible anywhere in [0.5, 1.0] of s_r,max, so the whole
+    # range is run rather than the mid-range value alone.
+    print("\n6. the same experiment over the admissible spacing range")
+    lam_rows = {}
+    for ls in tcm.LAM_S_RANGE:
+        row = {}
+        for th in TRUTH:
+            (st, lam) = states[th]
+            s_r, _ = spacing(th, prob, f_ct, ls)
+            ph, adm, ext, marg = phase_sweep(prob, area, st, lam, th, 0.0,
+                                             f_ct, s_r, n_phase=49,
+                                             lam_s=ls)
+            row[th] = summarize(ph, adm, ext, marg, base[th])
+            row[th]["s_rm_mm"] = s_r
+        lam_rows[ls] = row
+        cells = "  ".join(f"{row[t]['mean']:+.3f}+-{row[t]['std']:.3f}"
+                          f"/{row[t]['range_pp']:.0f}"
+                          f"({row[t]['admissible_fraction']:.2f})"
+                          for t in TRUTH)
+        print(f"   lam_s {ls:.2f} (s_rm {row[0.10]['s_rm_mm']:.0f} to "
+              f"{row[0.40]['s_rm_mm']:.0f} mm): {cells}", flush=True)
+    out["lam_s_sweep"] = {f"{k:.2f}": {f"{t:.2f}": v for t, v in r.items()}
+                          for k, r in lam_rows.items()}
+
+    # ---- 7. how much rests on the whole band reading the bar ----------
+    print("\n7. the disturbance restricted to the elements at the bar")
+    bar_only = {}
+    for th in TRUTH:
+        (st, lam) = states[th]
+        s_r = pattern[th]["s_rm_mm"]
+        ph, adm, ext, marg = phase_sweep(prob, area, st, lam, th, 0.0, f_ct,
+                                         s_r, n_phase=49, bar_row_only=True)
+        bar_only[th] = summarize(ph, adm, ext, marg, base[th])
+        b = bar_only[th]
+        print(f"   theta {th:.2f}: {b['mean']:+.4f} +- {b['std']:.4f}, "
+              f"bias {b['bias_pp']:+.1f} pp, range {b['range_pp']:.1f} pp, "
+              f"admissible {b['admissible_fraction']:.2f}")
+    out["bar_row_only"] = {f"{k:.2f}": v for k, v in bar_only.items()}
+
+    # ---- 8. the same test below yield --------------------------------
+    # The bias of section 2 exists because the bar law is nearly flat past
+    # yield. Below yield it is a straight line through the origin, the two
+    # averaging paths coincide exactly, and only the phase scatter is left.
+    # Running the smallest load state separates the two effects by
+    # experiment rather than by argument.
+    print("\n8. the same test at delta = 1.0 mm, where the tie is elastic")
+    elastic = {}
+    for th in TRUTH:
+        k = f"u_{th:.2f}_1.0"
+        if k not in d.files:
+            continue
+        lam = float(d[f"lam_{th:.2f}_1.0"][0])
+        st = element_strains(d["xy"], d[k], FD.NX, FD.NY)
+        cx, cy, ex = st[0], st[1], st[2]
+        b = roots(prob, area, *st, lam)[0]
+        s_r, _ = spacing(th, prob, f_ct)
+        inc = (np.abs(cx - FD.X_CUT) < FD.BAND_W) & (cy < FD.BAND)
+        ph, adm, ext, marg = phase_sweep(prob, area, st, lam, th, 0.0, f_ct,
+                                         s_r, n_phase=49)
+        elastic[th] = summarize(ph, adm, ext, marg, b)
+        elastic[th].update(baseline=float(b), eps_mean=float(ex[inc].mean()),
+                           yielded=bool(ex[inc].mean() > mat.eps_y))
+        e = elastic[th]
+        print(f"   theta {th:.2f}: eps {e['eps_mean']:.2e} "
+              f"(yield {mat.eps_y:.2e}), baseline {b:.4f}, sawtooth "
+              f"{e['mean']:+.4f} +- {e['std']:.4f}, bias {e['bias_pp']:+.1f} "
+              f"pp, range {e['range_pp']:.1f} pp, admissible "
+              f"{e['admissible_fraction']:.2f}")
+    out["elastic_state"] = {f"{k:.2f}": v for k, v in elastic.items()}
+
+    # ---- 9. a yardstick: what 5 % measurement noise already costs -----
+    # Table 2 of the manuscript is the reference scale for any new error
+    # source, and its realizations are cached, so the comparison is made
+    # against the very numbers the table prints.
+    cache = HERE.parent / "figures" / "figdata.npz"
+    if cache.exists():
+        fd = np.load(cache)
+        nm, nt, nr = fd["nm_models"], fd["nm_theta"], fd["nm_rec"]
+        out["noise_yardstick"] = {
+            str(m): {f"{float(nt[ti]):.2f}":
+                     dict(mean=float(np.nanmean(nr[mi, ti])),
+                          std=float(np.nanstd(nr[mi, ti])))
+                     for ti in range(nt.size)}
+            for mi, m in enumerate(nm)}
+        print("\n9. yardstick, 5 % noise (Table 2 realizations): independent "
+              "std " + ", ".join(f"{np.nanstd(nr[0, ti]):.3f}"
+                                 for ti in range(1, nt.size)))
+
+    # ---- the four sentences the manuscript would need ----------------
+    pt = sweeps["0.0 mm"]
+    bar = out["bar_row_only"]
+    out["headline"] = dict(
+        crack_spacing_mm={f"{t:.2f}": pattern[t]["s_rm_mm"] for t in TRUTH},
+        strip_over_spacing={f"{t:.2f}": pattern[t]["strip_over_spacing"]
+                            for t in TRUTH},
+        point_gauge_range_pp={f"{t:.2f}": pt[t]["range_pp"] for t in TRUTH},
+        point_gauge_std_pp={f"{t:.2f}": pt[t]["std_pp"] for t in TRUTH},
+        point_gauge_admissible={f"{t:.2f}": pt[t]["admissible_fraction"]
+                                for t in TRUTH},
+        bar_row_only_range_pp={f"{t:.2f}": bar[f"{t:.2f}"]["range_pp"]
+                               for t in TRUTH},
+        gauge_5mm_range_pp={f"{t:.2f}": sweeps["5.0 mm"][t]["range_pp"]
+                            for t in TRUTH},
+        gauge_10mm_range_pp={f"{t:.2f}": sweeps["10.0 mm"][t]["range_pp"]
+                             for t in TRUTH},
+        one_spacing_gauge_recovers_baseline=True,
+        one_spacing_caveat="true by construction: the synthesised profile is "
+                           "defined to have the stored strain as its period "
+                           "mean, so this row states the processing the model "
+                           "requires rather than validating it",
+        noise_yardstick_std_pp=2.3,
+        verdict="the band integral does NOT average the sawtooth out")
+
+    OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
+    OUT_JSON.write_text(json.dumps(out, indent=1))
+    print(f"\nwrote {OUT_JSON}")
+
+    figure(prob, f_ct, states, pattern, base, keep_curves, sweeps)
+
+
+# ----------------------------------------------------------------------
+def figure(prob, f_ct, states, pattern, base, curves, sweeps) -> None:
+    """Three panels: what the fiber sees, what it costs, what would fix it."""
+    import matplotlib.pyplot as plt
+    F.apply()
+    mat = prob.mat
+    fig = plt.figure(figsize=(F.FIG_W, 4.75))
+    gs = fig.add_gridspec(2, 2, height_ratios=[1.0, 1.0], hspace=0.62,
+                          wspace=0.28, left=0.085, right=0.995,
+                          top=0.905, bottom=0.095)
+    ax0 = fig.add_subplot(gs[0, :])
+    ax1 = fig.add_subplot(gs[1, 0])
+    ax2 = fig.add_subplot(gs[1, 1])
+
+    # (a) the reading itself, at the state the manuscript quotes
+    th = 0.20
+    p = pattern[th]
+    s_r, phi = p["s_rm_mm"], p["phi_mm"]
+    x = np.linspace(FD.X_CUT - 1.6 * s_r, FD.X_CUT + 1.6 * s_r, 4001)
+    xi = offsets(x, FD.X_CUT + 0.5 * s_r, s_r, 0.0)[:, 0]
+    e = bar_strain(sig_profile(p["sig_sr_MPa"], xi, phi, mat, f_ct), mat)
+    ax0.axvspan(FD.X_CUT - FD.BAND_W, FD.X_CUT + FD.BAND_W, color='0.90',
+                lw=0, zorder=0)
+    ax0.plot(x, 1e3 * e, color=F.VERM, lw=1.6, zorder=3)
+    ax0.axhline(1e3 * p["eps_mean"], color=F.BLACK, ls=(0, (5, 2)), lw=1.4,
+                zorder=4)
+    cx, cy, ex = states[th][0][0], states[th][0][1], states[th][0][2]
+    inc = (np.abs(cx - FD.X_CUT) < FD.BAND_W) & (cy < FD.BAND)
+    xg = np.unique(np.round(cx[inc], 4))
+    xig = offsets(xg, FD.X_CUT + 0.5 * s_r, s_r, 0.0)[:, 0]
+    eg = bar_strain(sig_profile(p["sig_sr_MPa"], xig, phi, mat, f_ct), mat)
+    ax0.plot(xg, 1e3 * eg, ls='none', marker='o', ms=5.5, mfc='white',
+             mec=F.BLACK, mew=1.3, zorder=6)
+    for xc in (FD.X_CUT + 0.5 * s_r, FD.X_CUT - 0.5 * s_r,
+               FD.X_CUT + 1.5 * s_r, FD.X_CUT - 1.5 * s_r):
+        ax0.axvline(xc, color=F.SKY, lw=1.0, ls=(0, (1.4, 1.3)), zorder=1)
+    ax0.set_xlabel('position along the tie, $x$ (mm)')
+    ax0.set_ylabel(r'axial strain ($10^{-3}$)')
+    ax0.set_xlim(x.min(), x.max())
+    ax0.set_ylim(0.0, 1e3 * e.max() * 1.30)
+    ax0.annotate('crack', xy=(FD.X_CUT + 0.5 * s_r, 1e3 * e.max() * 1.16),
+                 ha='center', va='center', fontsize=F.FS_ANNOT, color=F.SKY)
+    # Both labels sit in the flat valleys one crack spacing either side of
+    # the cut, at a common height, and reach their curve with a leader. The
+    # valleys are the only stretch of the panel no spike passes through.
+    y_lab = 1e3 * e.max() * 0.40
+    x_sm, x_fb = FD.X_CUT - 1.0 * s_r, FD.X_CUT + 1.0 * s_r
+    ax0.annotate('smeared mean', xy=(x_sm, 1e3 * p["eps_mean"]),
+                 xytext=(x_sm, y_lab), ha='center', va='bottom',
+                 fontsize=F.FS_ANNOT, color=F.BLACK,
+                 arrowprops=dict(arrowstyle='-', color=F.BLACK, lw=0.8,
+                                 shrinkA=2.0, shrinkB=0.0))
+    ax0.annotate('fiber reading',
+                 xy=(x_fb, float(np.interp(x_fb, x, 1e3 * e))),
+                 xytext=(x_fb, y_lab), ha='center', va='bottom',
+                 fontsize=F.FS_ANNOT, color=F.VERM,
+                 arrowprops=dict(arrowstyle='-', color=F.VERM, lw=0.8,
+                                 shrinkA=2.0, shrinkB=0.0))
+    ax0.annotate('100 mm strip,\n4 stations',
+                 xy=(FD.X_CUT, 1e3 * e.max() * 1.02), ha='center',
+                 va='top', fontsize=F.FS_ANNOT, color='0.35')
+    F.clean(ax0)
+    F.panel(ax0, 'a', 'fiber reading and the smeared strain')
+
+    # (b) what it costs, phase by phase
+    ax1.axhspan(0.0, THETA_MAX, color='#EAF4EA', lw=0, zorder=0)
+    for th in TRUTH:
+        u, ext, adm = curves[th]
+        ax1.plot(u, ext, color=F.family_color(th), lw=1.7, zorder=3)
+        ax1.axhline(base[th], color=F.family_color(th), ls=(0, (5, 2)),
+                    lw=1.0, zorder=2)
+    ax1.axhline(0.0, color='0.55', lw=0.9, zorder=1)
+    ax1.set_xlabel('crack phase relative to the cut ($s_{rm}$)')
+    ax1.set_ylabel(r'recovered $\theta$')
+    ax1.set_xlim(0.0, 1.0)
+    ax1.set_ylim(-0.66, 1.32)
+    ax1.annotate('admissible', xy=(0.02, 0.50), fontsize=F.FS_ANNOT,
+                 color='#2E6B33', ha='left', va='center')
+    # a legend naming the states, in place of an informal note about the
+    # color ordering: nothing else in the figure maps color to theta
+    from matplotlib.lines import Line2D                                   # noqa: E402
+    h = [Line2D([], [], color=F.family_color(th), lw=1.7,
+                label=f'{th:.2f}') for th in TRUTH]
+    h.append(Line2D([], [], color='0.45', lw=1.0, ls=(0, (5, 2)),
+                    label='smooth field'))
+    ax1.legend(handles=h, fontsize=F.FS_ANNOT, loc='upper right', ncol=3,
+               bbox_to_anchor=(1.0, 1.02),
+               title=r'true $\theta$', title_fontsize=F.FS_ANNOT,
+               handlelength=1.3, labelspacing=0.18, columnspacing=1.0,
+               borderaxespad=0.5, framealpha=0.92)
+    ax1.annotate('no admissible root', xy=(0.5, -0.60), fontsize=F.FS_ANNOT,
+                 color='0.30', ha='center', va='center')
+    F.clean(ax1)
+    F.panel(ax1, 'b', 'recovery against crack phase')
+
+    # (c) the gauge length that would fix it
+    # A point gauge cannot be placed on a log axis, and it is within
+    # 0.3 pp of the 5 mm gauge at every state, so the curve starts at 5 mm
+    # and the annotation says so rather than dropping a case silently.
+    keys = [f"{g:.1f} mm" for g in GAUGES_MM if g > 0.0]
+    gl = np.array([g for g in GAUGES_MM if g > 0.0])
+    gr = np.array(GAUGES_REL)
+    for th in TRUTH:
+        s_r = pattern[th]["s_rm_mm"]
+        rng = np.array([sweeps[k][th]["range_pp"] for k in keys])
+        ax2.plot(gl / s_r, rng, color=F.family_color(th), lw=1.7,
+                 marker='o', ms=3.6, zorder=3)
+        rr = np.array([sweeps[f"{v:.2f} s_rm"][th]["range_pp"]
+                       for v in GAUGES_REL])
+        ax2.plot(gr, rr, color=F.family_color(th), lw=1.7, ls=(0, (5, 2)),
+                 marker='s', ms=3.6, zorder=3)
+    ax2.axvline(1.0, color='0.55', lw=0.9, ls=(0, (1.4, 1.3)), zorder=1)
+    ax2.set_xscale('log')
+    ax2.set_xlabel('gauge length ($s_{rm}$)')
+    ax2.set_ylabel('spread  (% of section)')
+    ax2.set_ylim(bottom=0.0)
+    ax2.annotate('point, 5 and 10 mm\ngauges coincide here',
+                 xy=(0.021, 8.0), fontsize=F.FS_ANNOT, color='0.30',
+                 ha='left', va='bottom')
+    ax2.annotate('one crack\nspacing', xy=(1.12, 46.0), fontsize=F.FS_ANNOT,
+                 color='0.30', ha='left', va='bottom')
+    F.clean(ax2, grid=True)
+    F.panel(ax2, 'c', 'spread against gauge length')
+
+    probs = F.audit(fig)
+    fig.savefig(OUT_PNG, bbox_inches='tight',
+                bbox_extra_artists=F.bbox_artists(fig))
+    plt.close(fig)
+    print(f"wrote {OUT_PNG}" + ("" if not probs
+                                else f"  ({len(probs)} audit problems)"))
+
+
+if __name__ == "__main__":
+    main()

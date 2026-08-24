@@ -1,0 +1,14 @@
+{
+ "independent": {
+  "a90_pct": 10.0,
+  "a90_95_pct": 10.0
+ },
+ "gauge length": {
+  "a90_pct": 20.0,
+  "a90_95_pct": 20.0
+ },
+ "isotropic": {
+  "a90_pct": 30.0,
+  "a90_95_pct": 40.0
+ }
+}
