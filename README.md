@@ -1,5 +1,7 @@
 # Free-body statics for reinforcement section loss in concrete discontinuity regions
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22086009.svg)](https://doi.org/10.5281/zenodo.22086009)
+
 Code and reference fields for recovering how much tie reinforcement a
 deteriorating concrete discontinuity region has left, from strain measured on it.
 
@@ -98,6 +100,14 @@ restriction applies to any of it.
 
 > S. Lamsal and R. Bhandari, *Free-Body Statics for Reinforcement Section Loss
 > in Concrete Discontinuity Regions: Identifiability and Detection*, 2026.
+
+The archived software itself:
+
+> S. Lamsal and R. Bhandari, *Free-Body Statics for Reinforcement Section Loss
+> in Concrete Discontinuity Regions* (software), Zenodo, 2026.
+> doi:[10.5281/zenodo.22086009](https://doi.org/10.5281/zenodo.22086009)
+
+That DOI always resolves to the latest release; [10.5281/zenodo.22086010](https://doi.org/10.5281/zenodo.22086010) pins v1.0.0.
 
 ## License
 

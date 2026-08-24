@@ -16,6 +16,15 @@ authors:
     given-names: Rubi
     orcid: "https://orcid.org/0009-0005-3650-4619"
 version: "1.0.0"
+doi: "10.5281/zenodo.22086009"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.22086009"
+    description: Concept DOI, always the latest version
+  - type: doi
+    value: "10.5281/zenodo.22086010"
+    description: Version DOI for v1.0.0
+
 date-released: "2026-08-24"
 license: MIT
 keywords:
